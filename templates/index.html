@@ -1,0 +1,3566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R.E.M</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🖥️</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Google Sans', 'Segoe UI', Roboto, Arial, sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            color: #202124;
+        }
+
+        .container {
+            flex: 1;
+            background: #f0f2f5;
+            padding: 20px 24px;
+            overflow-y: auto;
+            margin: 0;
+        }
+
+        h1 {
+            color: #202124;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+
+        h3 {
+            color: #202124;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #80868b;
+        }
+
+        h4 {
+            color: #80868b;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        .command-section {
+            margin-bottom: 16px;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(60,64,67,0.08), 0 1px 2px rgba(60,64,67,0.06);
+        }
+
+        .command-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1.5px solid #dadce0;
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: 'SF Mono', 'Courier New', monospace;
+            color: #202124;
+            background: #f8f9fa;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #1a73e8;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(26,115,232,0.12);
+        }
+
+        button {
+            padding: 9px 18px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: inherit;
+            letter-spacing: 0.1px;
+            transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+        }
+
+        button:hover {
+            background: #1557b0;
+            box-shadow: 0 2px 8px rgba(26,115,232,0.28);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button.secondary {
+            background: #f0f2f5;
+            color: #3c4043;
+            border: 1.5px solid #dadce0;
+        }
+
+        button.secondary:hover {
+            background: #e8eaed;
+            box-shadow: none;
+        }
+
+        button.danger {
+            background: #ea4335;
+        }
+
+        button.danger:hover {
+            background: #c5221f;
+            box-shadow: 0 2px 8px rgba(234,67,53,0.28);
+        }
+
+        button.stop-btn {
+            background: #ea4335;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            animation: stopPulse 1.5s ease-in-out infinite;
+        }
+
+        button.stop-btn:hover {
+            background: #c5221f;
+            box-shadow: 0 2px 8px rgba(234,67,53,0.4);
+            animation: none;
+        }
+
+        @keyframes stopPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.75; }
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .quick-actions button {
+            background: #f0f2f5;
+            color: #1a73e8;
+            border: 1.5px solid #dadce0;
+            padding: 7px 14px;
+            font-size: 12px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .quick-actions button:hover {
+            background: #e8f0fe;
+            border-color: #1a73e8;
+            box-shadow: none;
+        }
+
+        .terminal {
+            background: #1e1e2e;
+            color: #cdd6f4;
+            padding: 16px;
+            border-radius: 12px;
+            font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 12.5px;
+            min-height: 380px;
+            max-height: 480px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin-bottom: 16px;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        }
+
+        .terminal.running {
+            border-color: #1a73e8;
+            animation: terminalPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes terminalPulse {
+            0%, 100% {
+                border-color: #1a73e8;
+                box-shadow: 0 0 0 rgba(26, 115, 232, 0);
+            }
+            50% {
+                border-color: #1557b0;
+                box-shadow: 0 0 18px rgba(26, 115, 232, 0.28);
+            }
+        }
+
+        .terminal-command {
+            color: #89dceb;
+            font-weight: bold;
+        }
+
+        .terminal-timestamp {
+            color: #6c7086;
+            font-size: 11px;
+        }
+
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        #interactive-input-bar {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: #181825;
+            border: 1.5px solid #1a73e8;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            margin-top: -16px;
+            margin-bottom: 12px;
+        }
+
+        #interactive-input-bar label {
+            color: #6c7086;
+            font-family: 'SF Mono', 'Courier New', monospace;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        #interactive-input-bar input {
+            flex: 1;
+            background: #11111b;
+            color: #cdd6f4;
+            border: 1px solid #313244;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-family: 'SF Mono', 'Courier New', monospace;
+            font-size: 12.5px;
+            outline: none;
+        }
+
+        #interactive-input-bar input:focus {
+            border-color: #1a73e8;
+        }
+
+        #interactive-input-bar button {
+            background: #313244;
+            color: #cdd6f4;
+            border: 1px solid #45475a;
+            border-radius: 6px;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        #interactive-input-bar button:hover {
+            background: #1a73e8;
+            color: #fff;
+            box-shadow: none;
+        }
+
+        .status {
+            padding: 10px 14px;
+            background: #ffffff;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: #5f6368;
+            box-shadow: 0 1px 2px rgba(60,64,67,0.08);
+        }
+
+        .loading {
+            display: none;
+            color: #1a73e8;
+            font-weight: 500;
+        }
+
+        .info-icon {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            background: transparent;
+            color: #5f6368;
+            text-align: center;
+            line-height: 28px;
+            font-size: 17px;
+            cursor: pointer;
+            margin-left: 6px;
+            text-decoration: none;
+            vertical-align: middle;
+            opacity: 0.75;
+            transition: all 0.15s;
+            border-radius: 50%;
+        }
+
+        .info-icon:hover {
+            opacity: 1;
+            transform: scale(1.1);
+            background: rgba(0,0,0,0.06);
+        }
+
+        /* Drawer Styles */
+        .drawer {
+            width: 400px;
+            min-width: 300px;
+            max-width: 50vw;
+            background: #ffffff;
+            border-left: 1px solid #e8eaed;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            box-shadow: -2px 0 8px rgba(60,64,67,0.06);
+        }
+
+        .drawer-resize-handle {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            cursor: col-resize;
+            background: transparent;
+            z-index: 10;
+            transition: background 0.2s;
+        }
+
+        .drawer-resize-handle:hover,
+        .drawer-resize-handle.dragging {
+            background: #1a73e8;
+        }
+
+        .drawer-content {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px 0 20px;
+            background: #ffffff;
+        }
+
+        .drawer-header h2 {
+            margin: 0;
+            font-size: 15px;
+            color: #202124;
+            font-weight: 600;
+        }
+
+        .drawer-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .drawer-tabs {
+            display: flex;
+            border-bottom: 1px solid #e8eaed;
+            background: #ffffff;
+            flex-shrink: 0;
+        }
+
+        .drawer-tab {
+            flex: 1;
+            padding: 9px 4px;
+            border: none;
+            border-bottom: 2px solid transparent;
+            background: transparent;
+            color: #80868b;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            white-space: nowrap;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        .drawer-tab:hover {
+            color: #1a73e8;
+            background: #f8f9fa;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .drawer-tab.active {
+            color: #1a73e8;
+            border-bottom: 2px solid #1a73e8;
+            font-weight: 600;
+            background: transparent;
+        }
+
+        .drawer-refresh {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 6px;
+            border-radius: 50%;
+            transition: all 0.2s;
+            opacity: 0.6;
+        }
+
+        .drawer-refresh:hover {
+            opacity: 1;
+            transform: rotate(90deg);
+            background: rgba(0,0,0,0.06);
+        }
+
+        .drawer-refresh.spinning {
+            animation: spin 0.6s linear infinite;
+            opacity: 1;
+            background: transparent;
+            transform: none;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .group-section {
+            margin-bottom: 10px;
+            padding: 12px 14px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 3px solid #1a73e8;
+        }
+
+        .subsystem-section {
+            margin-bottom: 10px;
+            padding: 12px 14px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 3px solid #34a853;
+        }
+
+        .pod-section {
+            margin-bottom: 10px;
+            padding: 12px 14px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 3px solid #fa7b17;
+        }
+
+        .pod-title {
+            color: #fa7b17;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+            letter-spacing: 0.1px;
+        }
+
+        .pod-title:hover {
+            color: #e06c11;
+        }
+
+        .pod-title .group-name {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+        }
+
+        .pod-title .group-actions {
+            opacity: 0;
+        }
+
+        .pod-title:hover .group-actions {
+            opacity: 1;
+        }
+
+        .pod-action-btn {
+            background: white;
+            border: 1.5px solid #fa7b17;
+            color: #fa7b17;
+            border-radius: 6px;
+            padding: 3px 7px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .pod-action-btn:hover {
+            background: #fa7b17;
+            color: white;
+            box-shadow: 0 1px 4px rgba(250,123,23,0.3);
+        }
+
+        #groupsContent {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .group-title {
+            color: #1a73e8;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+            letter-spacing: 0.1px;
+        }
+
+        .group-title:hover {
+            color: #1557b0;
+        }
+
+        .subsystem-title {
+            color: #34a853;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .subsystem-title:hover {
+            color: #2d8e47;
+        }
+
+        .group-name {
+            flex: 1;
+        }
+
+        .group-actions {
+            display: flex;
+            gap: 5px;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        .group-title:hover .group-actions {
+            opacity: 1;
+        }
+
+        .group-action-btn {
+            background: white;
+            border: 1.5px solid #1a73e8;
+            color: #1a73e8;
+            border-radius: 6px;
+            padding: 3px 7px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .group-action-btn:hover {
+            box-shadow: 0 1px 4px rgba(26,115,232,0.2);
+        }
+
+        .group-action-btn.up-btn {
+            border-color: #34a853;
+            color: #34a853;
+        }
+
+        .group-action-btn.up-btn:hover {
+            background: #34a853;
+            color: white;
+        }
+
+        .group-action-btn.down-btn {
+            border-color: #ea4335;
+            color: #ea4335;
+        }
+
+        .group-action-btn.down-btn:hover {
+            background: #ea4335;
+            color: white;
+        }
+
+        .group-action-btn.branch-btn {
+            border-color: #34a853;
+            color: #34a853;
+        }
+
+        .group-action-btn.branch-btn:hover {
+            background: #34a853;
+            color: white;
+        }
+
+        .modules-list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .module-item {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #e8eaed;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: 'SF Mono', 'Courier New', monospace;
+            font-size: 11.5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            box-shadow: 0 1px 2px rgba(60,64,67,0.04);
+        }
+
+        .module-item:hover {
+            background: #1a73e8;
+            color: white;
+            border-color: #1a73e8;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(26,115,232,0.22);
+        }
+
+        .module-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .module-status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: inline-block;
+        }
+
+        .module-status-dot.running   { background: #34a853; box-shadow: 0 0 4px rgba(52,168,83,0.5); }
+        .module-status-dot.intercepted { background: #667eea; box-shadow: 0 0 4px rgba(102,126,234,0.5); }
+        .module-status-dot.stopped   { background: #dadce0; }
+
+        .module-actions {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        .module-item:hover .module-actions {
+            opacity: 1;
+        }
+
+        .module-action-btn {
+            background: rgba(255,255,255,0.9);
+            border: 1.5px solid rgba(255,255,255,0.5);
+            border-radius: 6px;
+            padding: 3px 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 26px;
+        }
+
+        .module-action-btn.up {
+            color: #34a853;
+            border-color: #34a853;
+        }
+
+        .module-action-btn.down {
+            color: #ea4335;
+            border-color: #ea4335;
+        }
+
+        .module-action-btn.up:hover {
+            background: #34a853;
+            color: white;
+            border-color: #34a853;
+            transform: scale(1.1);
+            box-shadow: 0 2px 5px rgba(52,168,83,0.32);
+        }
+
+        .module-action-btn.down:hover {
+            background: #ea4335;
+            color: white;
+            border-color: #ea4335;
+            transform: scale(1.1);
+            box-shadow: 0 2px 5px rgba(234,67,53,0.32);
+        }
+
+        .module-item.highlighted .module-action-btn.up {
+            color: #34a853;
+            border-color: #34a853;
+        }
+
+        .module-item.highlighted .module-action-btn.down {
+            color: #ea4335;
+            border-color: #ea4335;
+        }
+
+        .module-item.highlighted .module-action-btn.up:hover {
+            background: #34a853;
+            color: white;
+        }
+
+        .module-item.highlighted .module-action-btn.down:hover {
+            background: #ea4335;
+            color: white;
+        }
+
+        .error-message {
+            background: #fce8e6;
+            color: #c5221f;
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid #f5c6c2;
+        }
+
+        .kubectl-vpn-hint {
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: #fef9e7;
+            border: 1px solid #fbbc04;
+            border-left: 4px solid #fbbc04;
+            border-radius: 8px;
+            font-size: 12.5px;
+            color: #5f4d00;
+            line-height: 1.5;
+        }
+
+        .kubectl-vpn-hint strong {
+            color: #3c4043;
+        }
+
+        .search-container {
+            padding: 12px 16px;
+            background: white;
+            border-bottom: 1px solid #e8eaed;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1.5px solid #dadce0;
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            box-sizing: border-box;
+            color: #202124;
+            background: #f8f9fa;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #1a73e8;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(26,115,232,0.1);
+        }
+
+        .search-stats {
+            margin-top: 5px;
+            font-size: 11px;
+            color: #80868b;
+            line-height: 1.3;
+        }
+
+        .help-text {
+            background: #e8f0fe;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            color: #1557b0;
+            margin-bottom: 12px;
+            border-left: 3px solid #1a73e8;
+            line-height: 1.5;
+        }
+
+        .help-text strong {
+            color: #1a73e8;
+        }
+
+        .help-text code {
+            background: rgba(26,115,232,0.1);
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-family: 'SF Mono', 'Courier New', monospace;
+            font-size: 11px;
+        }
+
+        .module-item.highlighted {
+            background: #fef9e7;
+            color: #b06000;
+            border-color: #fbbc04;
+            font-weight: 600;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Keyboard Shortcuts Modal */
+        .shortcuts-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(32,33,36,0.5);
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(2px);
+        }
+
+        .shortcuts-modal.active {
+            display: flex;
+        }
+
+        .shortcuts-modal-content {
+            background: white;
+            padding: 28px;
+            border-radius: 16px;
+            max-width: 560px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(60,64,67,0.18), 0 2px 8px rgba(60,64,67,0.1);
+        }
+
+        .shortcuts-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e8eaed;
+            padding-bottom: 14px;
+        }
+
+        .shortcuts-modal-header h2 {
+            margin: 0;
+            color: #202124;
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .shortcuts-modal-close {
+            background: #f0f2f5;
+            color: #5f6368;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 18px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            transition: background 0.15s;
+        }
+
+        .shortcuts-modal-close:hover {
+            background: #ea4335;
+            color: white;
+            box-shadow: none;
+        }
+
+        .shortcuts-section {
+            margin-bottom: 20px;
+        }
+
+        .shortcuts-section h3 {
+            color: #1a73e8;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .shortcut-item:last-child {
+            border-bottom: none;
+        }
+
+        .shortcut-description {
+            color: #5f6368;
+            font-size: 13px;
+        }
+
+        .shortcut-keys {
+            display: flex;
+            gap: 4px;
+        }
+
+        .shortcut-key {
+            background: #f8f9fa;
+            border: 1px solid #dadce0;
+            border-radius: 5px;
+            padding: 3px 7px;
+            font-family: 'SF Mono', 'Courier New', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            color: #3c4043;
+            box-shadow: 0 1px 0 #dadce0;
+        }
+
+        .help-icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: #1a73e8;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: 8px;
+            text-decoration: none;
+            vertical-align: middle;
+            transition: all 0.15s;
+        }
+
+        .help-icon:hover {
+            background: #1557b0;
+            transform: scale(1.08);
+        }
+
+        /* Branch Input Modal */
+        .branch-input-modal {
+            display: none;
+            position: fixed;
+            z-index: 4000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(32,33,36,0.5);
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(2px);
+        }
+
+        .branch-input-modal.active {
+            display: flex;
+        }
+
+        .branch-input-content {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            min-width: 400px;
+            box-shadow: 0 8px 32px rgba(60,64,67,0.18), 0 2px 8px rgba(60,64,67,0.1);
+        }
+
+        .branch-input-header {
+            margin-bottom: 16px;
+        }
+
+        .branch-input-header h3 {
+            margin: 0;
+            color: #202124;
+            font-size: 17px;
+            font-weight: 600;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        .branch-input-header p {
+            margin: 5px 0 0 0;
+            color: #5f6368;
+            font-size: 13px;
+        }
+
+        .branch-input-field {
+            margin-bottom: 14px;
+        }
+
+        .branch-input-field label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 13px;
+            color: #3c4043;
+        }
+
+        .branch-input-field input {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1.5px solid #dadce0;
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: 'SF Mono', 'Courier New', monospace;
+            box-sizing: border-box;
+            color: #202124;
+        }
+
+        .branch-input-field input:focus {
+            outline: none;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 3px rgba(26,115,232,0.1);
+        }
+
+        .branch-recent {
+            margin-bottom: 14px;
+        }
+
+        .branch-recent-label {
+            font-size: 12px;
+            color: #80868b;
+            margin-bottom: 6px;
+        }
+
+        .branch-recent-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .branch-recent-item {
+            background: #f0f2f5;
+            border: 1px solid #dadce0;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-family: 'SF Mono', 'Courier New', monospace;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: #3c4043;
+        }
+
+        .branch-recent-item:hover {
+            background: #e8f0fe;
+            border-color: #1a73e8;
+            color: #1a73e8;
+        }
+
+        .branch-input-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 4px;
+        }
+
+        .branch-input-actions button {
+            padding: 9px 20px;
+        }
+
+        /* Confirm Modal */
+        .confirm-modal {
+            display: none;
+            position: fixed;
+            z-index: 5000;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background: rgba(32,33,36,0.5);
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(2px);
+        }
+
+        .confirm-modal.active { display: flex; }
+
+        .confirm-modal-content {
+            background: white;
+            padding: 24px 28px;
+            border-radius: 14px;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(60,64,67,0.18);
+        }
+
+        .confirm-modal-content p {
+            margin: 0 0 20px 0;
+            font-size: 14px;
+            color: #202124;
+            line-height: 1.6;
+        }
+
+        .confirm-modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #202124;
+            margin-bottom: 10px;
+        }
+
+        .confirm-modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .intercept-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            box-shadow: 0 3px 12px rgba(102,126,234,0.22);
+            animation: slideIn 0.25s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .intercept-banner-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .intercept-banner-icon {
+            font-size: 18px;
+        }
+
+        .intercept-modules-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .intercept-banner-module {
+            font-family: 'SF Mono', 'Courier New', monospace;
+            background: rgba(255,255,255,0.2);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 12px;
+            display: inline-block;
+        }
+
+        .intercept-banner-check-btn {
+            background: rgba(255,255,255,0.15);
+            border: 1.5px solid rgba(255,255,255,0.4);
+            color: white;
+            padding: 5px 14px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: background 0.15s;
+            margin-top: 6px;
+            display: inline-block;
+        }
+
+        .intercept-banner-check-btn:hover {
+            background: rgba(255,255,255,0.28);
+            border-color: rgba(255,255,255,0.7);
+            box-shadow: none;
+            transform: none;
+        }
+
+        .intercept-banner.clear {
+            background: #e6f4ea;
+            color: #137333;
+            border: 1px solid #ceead6;
+            box-shadow: 0 1px 4px rgba(52,168,83,0.1);
+            padding: 8px 16px;
+            animation: none;
+            transition: opacity 0.6s ease;
+        }
+
+        .intercept-banner.clear.fade-out {
+            opacity: 0;
+        }
+
+        .module-item.intercepted {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(102,126,234,0.28);
+        }
+
+        .module-item.intercepted .module-action-btn {
+            background: rgba(255,255,255,0.9);
+            border-color: rgba(255,255,255,0.6);
+        }
+
+        .module-action-btn.intercept {
+            color: #667eea;
+            border-color: #667eea;
+        }
+
+        .module-action-btn.intercept:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .module-action-btn.leave {
+            color: #ea4335;
+            border-color: #ea4335;
+        }
+
+        .module-action-btn.leave:hover {
+            background: #ea4335;
+            color: white;
+            border-color: #ea4335;
+        }
+
+        .module-action-btn.branch {
+            color: #34a853;
+            border-color: #34a853;
+        }
+
+        .module-action-btn.branch:hover {
+            background: #34a853;
+            color: white;
+            border-color: #34a853;
+        }
+
+        .terminal-header {
+            justify-content: space-between;
+        }
+
+        .terminal-search-bar {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex: 1;
+            margin-right: 12px;
+        }
+
+        .terminal-search-input {
+            flex: 1;
+            padding: 5px 10px;
+            background: #2a2a3e;
+            border: 1.5px solid #45475a;
+            border-radius: 6px;
+            color: #cdd6f4;
+            font-size: 12px;
+            font-family: inherit;
+            transition: border-color 0.15s;
+        }
+
+        .terminal-search-input:focus {
+            outline: none;
+            border-color: #89dceb;
+            background: #313244;
+            box-shadow: none;
+        }
+
+        .terminal-search-input::placeholder {
+            color: #6c7086;
+        }
+
+        .terminal-search-clear {
+            background: transparent;
+            border: none;
+            color: #6c7086;
+            padding: 4px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .terminal-search-clear:hover {
+            color: #cdd6f4;
+            background: rgba(255,255,255,0.08);
+            box-shadow: none;
+        }
+
+        .terminal-search-nav {
+            background: transparent;
+            border: none;
+            color: #6c7086;
+            padding: 3px 5px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .terminal-search-nav:hover {
+            color: #cdd6f4;
+            background: rgba(255,255,255,0.08);
+            box-shadow: none;
+            transform: none;
+        }
+
+        .term-search-count {
+            color: #6c7086;
+            font-size: 11px;
+            font-family: 'SF Mono', 'Courier New', monospace;
+            white-space: nowrap;
+            padding: 0 2px;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        mark.term-highlight {
+            background: #fbbc04;
+            color: #202124;
+            border-radius: 2px;
+            padding: 0 1px;
+        }
+
+        mark.term-highlight-current {
+            background: #ea4335;
+            color: white;
+            border-radius: 2px;
+            padding: 0 1px;
+        }
+        /* Log Viewer Modal */
+        .log-viewer-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(2px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .log-viewer-modal.active {
+            display: flex;
+        }
+
+        .log-viewer-container {
+            width: 90vw;
+            height: 90vh;
+            background: #1e1e2e;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            border: 1.5px solid #313244;
+            transition: border-color 0.2s;
+        }
+
+        .log-viewer-container.paused {
+            border-color: #f9e2af;
+        }
+
+        .log-viewer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 16px;
+            background: #181825;
+            border-bottom: 1px solid #313244;
+            flex-shrink: 0;
+        }
+
+        #logViewerTitle {
+            color: #cdd6f4;
+            font-family: 'SF Mono', 'Courier New', monospace;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .log-viewer-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .log-status-indicator {
+            font-size: 11px;
+            color: #a6e3a1;
+            font-weight: 500;
+        }
+
+        .log-status-indicator.streaming::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #a6e3a1;
+            border-radius: 50%;
+            margin-right: 5px;
+            animation: logPulse 1.2s ease-in-out infinite;
+        }
+
+        @keyframes logPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .log-ctrl-btn {
+            padding: 5px 12px;
+            background: #313244;
+            color: #cdd6f4;
+            border: 1px solid #45475a;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: background 0.15s;
+        }
+
+        .log-ctrl-btn:hover {
+            background: #45475a;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .log-close-btn {
+            border-color: #f38ba8;
+            color: #f38ba8;
+        }
+
+        .log-close-btn:hover {
+            background: #f38ba8;
+            color: #1e1e2e;
+        }
+
+        .log-mark {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 6px 0;
+            color: #fab387;
+            font-size: 11px;
+            font-family: 'SF Mono', monospace;
+            user-select: none;
+        }
+        .log-mark::before,
+        .log-mark::after {
+            content: '';
+            flex: 1;
+            border-top: 1.5px dashed #fab387;
+            opacity: 0.5;
+        }
+
+        #logOutput {
+            flex: 1;
+            overflow-y: auto;
+            overflow-anchor: none; /* prevent browser scroll-anchoring from jumping the view */
+            font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 13px;
+            padding: 12px 16px;
+            user-select: text;
+            white-space: pre-wrap;
+            word-break: break-all;
+            line-height: 1.5;
+        }
+
+        .log-line {
+            color: #cdd6f4;
+        }
+
+        .log-line.log-error {
+            color: #f38ba8;
+        }
+
+        .log-line.log-warn {
+            color: #f9e2af;
+        }
+
+        .log-viewer-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 16px;
+            background: #181825;
+            border-top: 1px solid #313244;
+            flex-shrink: 0;
+        }
+
+        #logLineCount {
+            color: #6c7086;
+            font-size: 11px;
+            font-family: 'SF Mono', monospace;
+        }
+
+        .log-hint {
+            color: #6c7086;
+            font-size: 11px;
+        }
+
+        .log-paused-badge {
+            color: #f9e2af;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <span>🖥️ R.E.M</span>
+            <div style="display: flex; gap: 5px;">
+                <a href="https://gongio.atlassian.net/wiki/spaces/EN/pages/4266262695/Hybrid+Environments+for+Developers"
+                   target="_blank"
+                   class="info-icon"
+                   title="View Hybrid Environments Documentation">ℹ️</a>
+                <a id="gong-app-link"
+                   href="#"
+                   target="_blank"
+                   class="info-icon"
+                   title="Loading..."
+                   style="display:none">🌐</a>
+                <span class="help-icon" onclick="openShortcutsModal()" title="Keyboard Shortcuts (Press ?)">?</span>
+            </div>
+        </h1>
+
+        <!-- Intercept Status Banner -->
+        <div id="interceptBanner" class="intercept-banner hidden">
+            <div class="intercept-banner-header">
+                <span class="intercept-banner-icon" id="interceptBannerIcon">🔌</span>
+                <span id="interceptBannerText">Currently intercepted:</span>
+            </div>
+            <div id="interceptModulesList" class="intercept-modules-list"></div>
+        </div>
+
+        <!-- Command Input -->
+        <div class="command-section">
+            <h3>Command</h3>
+            <div class="command-input">
+                <input type="text" id="commandInput" placeholder="Enter command..." value="ls -la">
+                <button onclick="runCommand()"
+                        title="Execute the command entered above">Run Command</button>
+            </div>
+
+            <h4>Quick Actions</h4>
+            <div class="quick-actions">
+                <button onclick="runQuickCommand('gong-module-run remote --status')"
+                        title="gong-module-run remote --status (auto-parses on success)">Status\Connect</button>
+                <button onclick="confirmRefetchDB()"
+                        title="gong-module-run synthetic-data --synthetic-data-image-tag latest --remote">Refetch DB</button>
+                <button onclick="runQuickCommand('gong-module-run remote --init')"
+                        title="gong-module-run remote --init">FF and DB Refresh</button>
+                <button onclick="runQuickCommand('gong-module-run remote --refresh-modules')"
+                        title="gong-module-run remote --refresh-modules">Get Latest</button>
+                <button onclick="showPodsStatus()"
+                        title="kubectl get pods — show image (last segment) and status">Pods Status</button>
+            </div>
+        </div>
+
+        <!-- Terminal Output -->
+        <div class="terminal-header">
+            <div class="terminal-search-bar">
+                <input type="text"
+                       id="terminalSearch"
+                       class="terminal-search-input"
+                       placeholder="🔍 Search terminal..."
+                       oninput="highlightTerminal(this.value)"
+                       autocomplete="off" spellcheck="false">
+                <span id="termSearchCount" class="term-search-count hidden"></span>
+                <button class="terminal-search-nav hidden" id="termSearchPrev"
+                        onclick="navigateHighlight(-1)" title="Previous match (Shift+Enter)">▲</button>
+                <button class="terminal-search-nav hidden" id="termSearchNext"
+                        onclick="navigateHighlight(1)" title="Next match (Enter)">▼</button>
+                <button class="terminal-search-clear hidden" id="termSearchClearBtn"
+                        onclick="clearTerminalHighlight()" title="Clear highlight">✕</button>
+            </div>
+            <button id="killBtn" class="stop-btn hidden"
+                    onclick="killCommand()"
+                    title="Send Ctrl+C to stop the running command">■ Stop</button>
+            <span style="width: 8px; display: inline-block;"></span>
+            <button onclick="clearTerminal()" class="danger"
+                    title="Clear all terminal output and history">Clear Terminal</button>
+        </div>
+        <div class="terminal" id="terminal">Terminal ready. Run a command to see output.\n================================================================================\n</div>
+
+        <!-- Interactive Input Bar (shown while a command is running) -->
+        <div id="interactive-input-bar">
+            <label id="interactive-input-label">⌨ Input:</label>
+            <input id="interactive-input" type="text"
+                   placeholder="Type here and press Enter to send to the running process"
+                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+            <button onclick="submitInteractiveInput()">Send ↵</button>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status">
+            <span class="loading" id="loading">⏳ Running command...</span>
+            <span id="status">Ready</span>
+        </div>
+    </div>
+
+    <!-- Module Groups Drawer -->
+    <div class="drawer" id="drawer">
+        <div class="drawer-resize-handle" id="drawerResizeHandle"></div>
+        <div class="drawer-header">
+            <h2 id="drawerTitle">📦 Subsystems</h2>
+            <div class="drawer-controls">
+                <button class="drawer-refresh" id="refreshGroupsBtn" onclick="refreshData()" title="Re-load data">🔄</button>
+            </div>
+        </div>
+        <div class="drawer-tabs">
+            <button class="drawer-tab" id="tab-subsystems" onclick="switchTab('subsystems')">📦 Subsystems</button>
+            <button class="drawer-tab" id="tab-groups" onclick="switchTab('groups')">📁 Groups</button>
+            <button class="drawer-tab" id="tab-pods" onclick="switchTab('pods')">🟢 Live Pods</button>
+        </div>
+        <div class="search-container" id="searchContainer">
+            <input type="text"
+                   class="search-input"
+                   id="groupsSearch"
+                   placeholder="Search subsystems or modules..."
+                   oninput="filterGroups()">
+            <div class="search-stats" id="searchStats"></div>
+        </div>
+        <div class="drawer-content" id="groupsContent">
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div id="confirmModal" class="confirm-modal">
+        <div class="confirm-modal-content">
+            <div class="confirm-modal-title" id="confirmModalTitle">Are you sure?</div>
+            <p id="confirmModalMessage"></p>
+            <div class="confirm-modal-actions">
+                <button class="secondary" onclick="closeConfirmModal()">Cancel</button>
+                <button class="danger" id="confirmModalOkBtn" onclick="confirmModalOk()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Branch Input Modal -->
+    <div id="branchInputModal" class="branch-input-modal">
+        <div class="branch-input-content">
+            <div class="branch-input-header">
+                <h3>🌿 Deploy from Branch</h3>
+                <p id="branchInputTarget">Running: <strong></strong></p>
+            </div>
+            <div class="branch-input-field">
+                <label>Branch Name:</label>
+                <input type="text" id="branchNameInput" placeholder="feature/my-branch" />
+            </div>
+            <div class="branch-recent" id="branchRecentSection">
+                <div class="branch-recent-label">Recent branches:</div>
+                <div class="branch-recent-list" id="branchRecentList"></div>
+            </div>
+            <div class="branch-input-actions">
+                <button class="secondary" onclick="closeBranchInputModal()">Cancel</button>
+                <button onclick="runFromBranch()">Run</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Modal -->
+    <div id="shortcutsModal" class="shortcuts-modal">
+        <div class="shortcuts-modal-content">
+            <div class="shortcuts-modal-header">
+                <h2>⌨️ Keyboard Shortcuts</h2>
+                <button class="shortcuts-modal-close" onclick="closeShortcutsModal()">×</button>
+            </div>
+
+            <div class="shortcuts-section">
+                <h3>Command Input</h3>
+                <div class="shortcut-item">
+                    <span class="shortcut-description">Run command</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">Enter</span>
+                    </div>
+                </div>
+                <div class="shortcut-item">
+                    <span class="shortcut-description">Previous command (history)</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">↑</span>
+                    </div>
+                </div>
+                <div class="shortcut-item">
+                    <span class="shortcut-description">Next command (history)</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">↓</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="shortcuts-section">
+                <h3>Interactive Prompts (while command is running)</h3>
+                <div class="shortcut-item">
+                    <span class="shortcut-description">Navigate selection up / down</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">↑</span>
+                        <span class="shortcut-key">↓</span>
+                    </div>
+                </div>
+                <div class="shortcut-item">
+                    <span class="shortcut-description">Confirm / approve</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">Enter</span>
+                    </div>
+                </div>
+                <div class="shortcut-item">
+                    <span class="shortcut-description">Type y / n for yes-no prompts</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">Any key</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="shortcuts-section">
+                <h3>Module Groups</h3>
+                <div class="shortcut-item">
+                    <span class="shortcut-description">Focus search</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">/</span>
+                    </div>
+                </div>
+                <div class="shortcut-item">
+                    <span class="shortcut-description">Click module name to copy</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">Click</span>
+                    </div>
+                </div>
+                <div class="shortcut-item">
+                    <span class="shortcut-description">Hover for actions (⬆️ ⬇️ 🔌 🌿 📋)</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">Hover</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="shortcuts-section">
+                <h3>Log Viewer (📋 on Running Pods)</h3>
+                <div class="shortcut-item">
+                    <span class="shortcut-description">Pause / resume auto-scroll</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">Scroll up</span>
+                        <span class="shortcut-key">⏸ button</span>
+                    </div>
+                </div>
+                <div class="shortcut-item">
+                    <span class="shortcut-description">Copy all logs</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">Copy All</span>
+                    </div>
+                </div>
+                <div class="shortcut-item">
+                    <span class="shortcut-description">Select &amp; copy text</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">Mouse select</span>
+                    </div>
+                </div>
+                <div class="shortcut-item">
+                    <span class="shortcut-description">Close log viewer</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">Esc</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="shortcuts-section">
+                <h3>General</h3>
+                <div class="shortcut-item">
+                    <span class="shortcut-description">Show this help</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">?</span>
+                    </div>
+                </div>
+                <div class="shortcut-item">
+                    <span class="shortcut-description">Close modals</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">Esc</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let interceptedModules = new Set(); // Track all intercepted modules
+        let interceptStatusChecked = false; // Track if we've checked status
+        let commandHistory = []; // Store command history
+        let historyIndex = -1; // Current position in history (-1 = not navigating)
+
+        // View management
+        let currentView = localStorage.getItem('viewMode') || 'subsystems'; // 'groups', 'subsystems', or 'pods'
+        let cachedGroupsData = null;
+        let cachedSubsystemsData = null;
+        let cachedPodsData = null;
+        let lastGroupsFetchTime = null;
+        let lastSubsystemsFetchTime = null;
+        let lastPodsFetchTime = null;
+
+        function setStatus(message, isLoading = false) {
+            document.getElementById('status').textContent = message;
+            document.getElementById('loading').style.display = isLoading ? 'inline' : 'none';
+        }
+
+        function getTimestamp() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            return `[${hours}:${minutes}:${seconds}]`;
+        }
+
+        function updateInterceptBanner() {
+            const banner = document.getElementById('interceptBanner');
+            const bannerText = document.getElementById('interceptBannerText');
+            const modulesList = document.getElementById('interceptModulesList');
+            const icon = document.getElementById('interceptBannerIcon');
+
+            clearTimeout(banner._fadeTimer);
+
+            if (interceptedModules.size > 0) {
+                // Active interception — prominent purple banner
+                banner.className = 'intercept-banner';
+                icon.textContent = '🔌';
+                bannerText.textContent = `Currently intercepted (${interceptedModules.size}):`;
+                let html = '';
+                interceptedModules.forEach(module => {
+                    html += `<span class="intercept-banner-module">${escapeHtml(module)}</span>`;
+                });
+                modulesList.innerHTML = html;
+            } else if (interceptStatusChecked) {
+                // Checked and clear — small green pill, fades out after 4s
+                banner.className = 'intercept-banner clear';
+                icon.textContent = '✓';
+                bannerText.textContent = 'Connected · no active intercepts';
+                modulesList.innerHTML = '';
+                banner._fadeTimer = setTimeout(() => {
+                    banner.classList.add('fade-out');
+                    setTimeout(() => banner.classList.add('hidden'), 600);
+                }, 4000);
+            } else {
+                // Unknown — stay hidden, no noise
+                banner.classList.add('hidden');
+                return;
+            }
+
+            banner.classList.remove('hidden');
+        }
+
+        function addInterceptedModule(moduleName) {
+            interceptedModules.add(moduleName);
+            interceptStatusChecked = true;
+            updateInterceptBanner();
+            filterGroups();
+        }
+
+        function removeInterceptedModule(moduleName) {
+            interceptedModules.delete(moduleName);
+            interceptStatusChecked = true;
+            updateInterceptBanner();
+            filterGroups();
+        }
+
+        function setInterceptedModules(modules) {
+            interceptedModules = new Set(modules);
+            interceptStatusChecked = true;
+            updateInterceptBanner();
+            filterGroups();
+        }
+
+        function clearAllInterceptedModules() {
+            interceptedModules.clear();
+            interceptStatusChecked = true;
+            updateInterceptBanner();
+            filterGroups();
+        }
+
+        function parseInterceptedModules(output) {
+            const lines = output.split('\n');
+            let inInterceptSection = false;
+            const intercepted = [];
+
+            for (const line of lines) {
+                // Start of intercept section
+                if (line.includes('Intercepted Services')) {
+                    inInterceptSection = true;
+                    continue;
+                }
+
+                // End of intercept section
+                if (line.includes('Deployed Modules & Databases')) {
+                    break;
+                }
+
+                // Parse module names (format: "- modulename")
+                if (inInterceptSection && line.trim().startsWith('- ')) {
+                    const moduleName = line.trim().substring(2).trim();
+                    if (moduleName) {
+                        intercepted.push(moduleName);
+                    }
+                }
+            }
+
+            return intercepted;
+        }
+
+        async function silentCheckInterceptStatus() {
+            try {
+                const response = await fetch('/run_command', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command: 'gong-module-run remote --status' })
+                });
+                const data = await response.json();
+                if (data.exit_code === 0) {
+                    const intercepted = parseInterceptedModules(data.output);
+                    setInterceptedModules(intercepted);
+                }
+                // If command failed (not connected etc.) — banner stays hidden
+            } catch (e) {
+                // Network error — stay hidden
+            }
+        }
+
+        async function checkInterceptStatus() {
+            setStatus('Checking intercept status...', true);
+
+            const command = 'gong-module-run remote --status';
+            await executeCommand(command);
+
+            // Parse the terminal output to find intercepted modules
+            const allOutput = document.getElementById('terminal').textContent;
+            const intercepted = parseInterceptedModules(allOutput);
+
+            if (intercepted.length > 0) {
+                setInterceptedModules(intercepted);
+                setStatus(`Found ${intercepted.length} intercepted module(s): ${intercepted.join(', ')}`);
+            } else {
+                clearAllInterceptedModules();
+                setStatus('No modules currently intercepted');
+            }
+        }
+
+        let termHighlightTerm = '';
+        let termHighlightIndex = -1;
+
+        function escapeRegex(str) {
+            return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function highlightTerminal(term) {
+            termHighlightTerm = term.trim();
+            termHighlightIndex = -1;
+            const terminal = document.getElementById('terminal');
+            const clearBtn = document.getElementById('termSearchClearBtn');
+            const prevBtn = document.getElementById('termSearchPrev');
+            const nextBtn = document.getElementById('termSearchNext');
+            const countSpan = document.getElementById('termSearchCount');
+
+            // Remove existing highlights
+            terminal.querySelectorAll('mark.term-highlight, mark.term-highlight-current').forEach(mark => {
+                mark.replaceWith(document.createTextNode(mark.textContent));
+            });
+            terminal.normalize();
+
+            if (!termHighlightTerm) {
+                clearBtn.classList.add('hidden');
+                prevBtn.classList.add('hidden');
+                nextBtn.classList.add('hidden');
+                countSpan.classList.add('hidden');
+                return;
+            }
+
+            clearBtn.classList.remove('hidden');
+
+            const regex = new RegExp(escapeRegex(termHighlightTerm), 'gi');
+            const walker = document.createTreeWalker(terminal, NodeFilter.SHOW_TEXT, null, false);
+            const nodes = [];
+            while (walker.nextNode()) nodes.push(walker.currentNode);
+
+            nodes.forEach(node => {
+                const text = node.textContent;
+                if (!regex.test(text)) return;
+                regex.lastIndex = 0;
+                const fragment = document.createDocumentFragment();
+                let lastIndex = 0, match;
+                while ((match = regex.exec(text)) !== null) {
+                    fragment.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
+                    const mark = document.createElement('mark');
+                    mark.className = 'term-highlight';
+                    mark.textContent = match[0];
+                    fragment.appendChild(mark);
+                    lastIndex = regex.lastIndex;
+                }
+                fragment.appendChild(document.createTextNode(text.slice(lastIndex)));
+                node.parentNode.replaceChild(fragment, node);
+            });
+
+            const allMarks = terminal.querySelectorAll('mark.term-highlight');
+            if (allMarks.length > 0) {
+                termHighlightIndex = 0;
+                allMarks[0].className = 'term-highlight-current';
+                allMarks[0].scrollIntoView({ block: 'nearest' });
+                prevBtn.classList.remove('hidden');
+                nextBtn.classList.remove('hidden');
+                countSpan.classList.remove('hidden');
+                countSpan.textContent = `1 / ${allMarks.length}`;
+            } else {
+                prevBtn.classList.add('hidden');
+                nextBtn.classList.add('hidden');
+                countSpan.classList.add('hidden');
+            }
+        }
+
+        function navigateHighlight(dir) {
+            const terminal = document.getElementById('terminal');
+            const allMarks = [...terminal.querySelectorAll('mark.term-highlight, mark.term-highlight-current')];
+            if (allMarks.length === 0) return;
+
+            if (termHighlightIndex >= 0 && termHighlightIndex < allMarks.length) {
+                allMarks[termHighlightIndex].className = 'term-highlight';
+            }
+
+            termHighlightIndex = (termHighlightIndex + dir + allMarks.length) % allMarks.length;
+            allMarks[termHighlightIndex].className = 'term-highlight-current';
+            allMarks[termHighlightIndex].scrollIntoView({ block: 'nearest' });
+            document.getElementById('termSearchCount').textContent = `${termHighlightIndex + 1} / ${allMarks.length}`;
+        }
+
+        function clearTerminalHighlight() {
+            document.getElementById('terminalSearch').value = '';
+            highlightTerminal('');
+        }
+
+        async function killCommand() {
+            try {
+                await fetch('/kill_command', { method: 'POST' });
+            } catch (e) {
+                // Process may have already exited
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function appendToTerminal(text, isCommand = false, isTimestamp = false) {
+            const terminal = document.getElementById('terminal');
+            if (isTimestamp) {
+                terminal.innerHTML += `<span class="terminal-timestamp">${escapeHtml(text)}</span>`;
+            } else if (isCommand) {
+                terminal.innerHTML += `<span class="terminal-command">${escapeHtml(text)}</span>`;
+            } else {
+                terminal.innerHTML += escapeHtml(text);
+            }
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        async function runCommand() {
+            const command = document.getElementById('commandInput').value.trim();
+            if (!command) {
+                alert('Please enter a command');
+                return;
+            }
+            await executeCommand(command);
+        }
+
+        async function runQuickCommand(command) {
+            await executeCommand(command);
+        }
+
+        // ── Confirm Modal ────────────────────────────────────────────────────
+        let _confirmCallback = null;
+
+        function confirmAction(title, message, onConfirm) {
+            document.getElementById('confirmModalTitle').textContent = title;
+            document.getElementById('confirmModalMessage').textContent = message;
+            _confirmCallback = onConfirm;
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+            _confirmCallback = null;
+        }
+
+        function confirmModalOk() {
+            closeConfirmModal();
+            if (_confirmCallback) _confirmCallback();
+        }
+
+        function confirmRefetchDB() {
+            confirmAction(
+                '⚠️ Refetch Database',
+                'This will re-fetch the database from scratch using the latest synthetic data image. The operation takes several minutes and will overwrite your current database. Are you sure?',
+                () => runQuickCommand('gong-module-run synthetic-data --synthetic-data-image-tag latest --remote')
+            );
+        }
+
+        // ── Environment Status Progress ───────────────────────────────────────
+
+        async function executeCommand(command) {
+            // Add command to history (avoid duplicates of last command)
+            if (commandHistory.length === 0 || commandHistory[commandHistory.length - 1] !== command) {
+                commandHistory.push(command);
+            }
+            historyIndex = -1; // Reset history navigation
+
+            // Add running indicator to terminal
+            const terminal = document.getElementById('terminal');
+            // Finalise any leftover partial span from a previous command
+            const stalePartial = document.getElementById('partial-line');
+            if (stalePartial) stalePartial.removeAttribute('id');
+            terminal.classList.add('running');
+            document.getElementById('killBtn').classList.remove('hidden');
+
+            // Show interactive input bar and focus it
+            const inputBar = document.getElementById('interactive-input-bar');
+            const interactiveInput = document.getElementById('interactive-input');
+            interactiveInput.type = 'text';
+            interactiveInput.value = '';
+            document.getElementById('interactive-input-label').textContent = '⌨ Input:';
+            inputBar.style.display = 'flex';
+            interactiveInput.focus();
+
+            setStatus(`Running: ${command} · ↑↓ Enter to interact`, true);
+            appendToTerminal('\n');
+            // Add timestamp before command
+            appendToTerminal(`${getTimestamp()} `, false, true);
+
+            // Add branch indicator if deploying from branch
+            if (command.includes('--branch-name')) {
+                const branchMatch = command.match(/--branch-name\s+(\S+)/);
+                if (branchMatch) {
+                    appendToTerminal(`🌿 branch:${branchMatch[1]} `, false);
+                }
+            }
+
+            appendToTerminal(`$ ${command}\n`, true);
+
+            let finalExitCode = null;
+
+            try {
+                // Use fetch to initiate streaming
+                const response = await fetch('/run_command_stream', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({command: command})
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to start command');
+                }
+
+                // Read streaming response
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+
+                while (true) {
+                    const {done, value} = await reader.read();
+
+                    if (done) break;
+
+                    // Decode chunk and process lines
+                    const chunk = decoder.decode(value, {stream: true});
+                    const lines = chunk.split('\n');
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const data = line.substring(6);
+
+                            // Check for completion signal
+                            if (data.startsWith('[COMPLETE:')) {
+                                const exitCode = data.match(/\[COMPLETE:(-?\d+)\]/)[1];
+                                finalExitCode = parseInt(exitCode);
+                                // Finalise any pending partial span
+                                const donePartial = document.getElementById('partial-line');
+                                if (donePartial) donePartial.removeAttribute('id');
+                                // Hide interactive input bar
+                                document.getElementById('interactive-input-bar').style.display = 'none';
+                                document.getElementById('interactive-input').value = '';
+                                appendToTerminal('\n' + '='.repeat(80) + '\n');
+                                setStatus(`Command completed (exit code: ${exitCode})`);
+                                // Remove running indicator
+                                terminal.classList.remove('running');
+                                document.getElementById('killBtn').classList.add('hidden');
+                                // Re-apply highlight if search term is active
+                                if (termHighlightTerm) highlightTerminal(termHighlightTerm);
+                            } else if (data.startsWith('[PARTIAL]')) {
+                                // Partial line (interactive prompt / \r progress) — overwrite in place
+                                const text = data.substring(9);
+                                let span = document.getElementById('partial-line');
+                                if (span) {
+                                    span.textContent = text;          // overwrite in place
+                                } else {
+                                    span = document.createElement('span');
+                                    span.id = 'partial-line';
+                                    span.textContent = text;
+                                    terminal.appendChild(span);
+                                    terminal.scrollTop = terminal.scrollHeight;
+                                }
+                                // Auto-switch input type based on prompt content
+                                const inp = document.getElementById('interactive-input');
+                                if (/password/i.test(text)) {
+                                    inp.type = 'password';
+                                    inp.placeholder = 'Enter password and press Enter';
+                                    document.getElementById('interactive-input-label').textContent = '🔒 Password:';
+                                } else {
+                                    inp.type = 'text';
+                                    inp.placeholder = 'Type here and press Enter to send to the running process';
+                                    document.getElementById('interactive-input-label').textContent = '⌨ Input:';
+                                }
+                                inp.focus();
+                            } else {
+                                // Complete line — finalise any pending partial so it won't be overwritten
+                                const partial = document.getElementById('partial-line');
+                                if (partial) partial.removeAttribute('id');
+                                appendToTerminal(data + '\n');
+                            }
+                        }
+                    }
+                }
+
+                // Show VPN hint if a kubectl command failed with a connection error
+                if (finalExitCode !== 0 && command.trim().startsWith('kubectl')) {
+                    const recentOutput = document.getElementById('terminal').textContent;
+                    if (isKubectlConnectionIssue(recentOutput) || finalExitCode === 124 /* timeout */) {
+                        appendToTerminal('💡 Make sure you are connected to VPN and your AWS Profiles are active.\n');
+                    }
+                }
+
+                // Auto-check intercept status if this was a successful remote status command
+                if (finalExitCode === 0 && command.includes('gong-module-run remote --status')) {
+                    const allOutput = document.getElementById('terminal').textContent;
+                    const intercepted = parseInterceptedModules(allOutput);
+
+                    if (intercepted.length > 0) {
+                        setInterceptedModules(intercepted);
+                    } else {
+                        clearAllInterceptedModules();
+                    }
+                }
+
+            } catch (error) {
+                // Finalise any pending partial span
+                const errPartial = document.getElementById('partial-line');
+                if (errPartial) errPartial.removeAttribute('id');
+                // Hide interactive input bar
+                document.getElementById('interactive-input-bar').style.display = 'none';
+                document.getElementById('interactive-input').value = '';
+                appendToTerminal('Error: ' + error.message + '\n');
+                appendToTerminal('='.repeat(80) + '\n');
+                setStatus('Error: ' + error.message);
+                // Remove running indicator on error
+                terminal.classList.remove('running');
+                document.getElementById('killBtn').classList.add('hidden');
+            }
+        }
+
+        async function sendInput(inputStr) {
+            try {
+                await fetch('/send_input', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({input: inputStr})
+                });
+            } catch (error) {
+                console.error('Failed to send input:', error);
+            }
+        }
+
+        async function interceptModuleFromDrawer(moduleName) {
+            const command = `gong-module-run remote --intercept ${moduleName}`;
+            await executeCommand(command);
+            addInterceptedModule(moduleName);
+        }
+
+        async function leaveModuleFromDrawer(moduleName) {
+            const command = `gong-module-run remote --leave ${moduleName}`;
+            await executeCommand(command);
+            removeInterceptedModule(moduleName);
+        }
+
+        async function showPodsStatus() {
+            let nsFlag = '';
+            try {
+                const resp = await fetch('/get_k8s_namespace');
+                const data = await resp.json();
+                if (data.namespace) nsFlag = `-n ${data.namespace}`;
+            } catch (e) {}
+            const cmd = `kubectl get pods ${nsFlag} --no-headers -o jsonpath='{range .items[*]}{.status.phase}{" "}{range .spec.containers[*]}{.name}{" "}{.image}{" "}{end}{"\\n"}{end}' | awk 'BEGIN{printf "%-70s    %s\\n","IMAGE","STATUS"} {phase=$1; for(i=2;i<=NF;i+=2){cname=$i; cimg=$(i+1); n=split(cimg,a,"/"); img=a[n]; if(cname!="linkerd-proxy"&&cname!=""&&img!=""){printf "%-70s    %s\\n",img,phase; break}}}'`;
+            await runQuickCommand(cmd);
+        }
+
+        async function clearTerminal() {
+            try {
+                await fetch('/clear_terminal', {method: 'POST'});
+                document.getElementById('terminal').innerHTML = escapeHtml('Terminal cleared.\n' + '='.repeat(80) + '\n');
+                clearTerminalHighlight();
+                setStatus('Terminal output cleared');
+            } catch (error) {
+                setStatus('Error clearing terminal');
+            }
+        }
+
+        // Allow Enter key to run command
+        document.getElementById('commandInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                runCommand();
+            }
+        });
+
+        // Terminal search navigation: Enter = next, Shift+Enter = previous
+        document.getElementById('terminalSearch').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                navigateHighlight(e.shiftKey ? -1 : 1);
+            }
+        });
+
+        // Command history navigation with up/down arrows
+        document.getElementById('commandInput').addEventListener('keydown', (e) => {
+            const input = document.getElementById('commandInput');
+
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (commandHistory.length === 0) return;
+
+                // First time pressing up, start from end of history
+                if (historyIndex === -1) {
+                    historyIndex = commandHistory.length - 1;
+                } else if (historyIndex > 0) {
+                    historyIndex--;
+                }
+
+                input.value = commandHistory[historyIndex];
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (historyIndex === -1) return;
+
+                historyIndex++;
+                if (historyIndex >= commandHistory.length) {
+                    historyIndex = -1;
+                    input.value = '';
+                } else {
+                    input.value = commandHistory[historyIndex];
+                }
+            }
+        });
+
+        // Groups Drawer Functions
+        let allGroupsData = null; // Store the original data for filtering
+        let allSubsystemsData = null; // Store the original subsystems data for filtering
+
+        async function loadGroups(forceRefresh = false) {
+            const content = document.getElementById('groupsContent');
+            const searchInput = document.getElementById('groupsSearch');
+
+            // Use cached data if available and not forcing refresh
+            if (!forceRefresh && cachedGroupsData) {
+                allGroupsData = cachedGroupsData;
+                renderGroups(cachedGroupsData);
+                updateSearchStats(cachedGroupsData);
+
+                // Show cache indicator
+                const cacheAge = lastGroupsFetchTime ? Math.round((Date.now() - lastGroupsFetchTime) / 1000) : 0;
+                setStatus(`Loaded from cache (${cacheAge}s ago). Click 🔄 to refresh.`);
+                return;
+            }
+
+            // Fetch from server
+            content.innerHTML = '<p>Loading module groups...</p>';
+            searchInput.value = '';
+
+            try {
+                const response = await fetch('/get_yaml_groups');
+                const data = await response.json();
+
+                if (data.error) {
+                    content.innerHTML = `<div class="error-message"><strong>Error:</strong> ${escapeHtml(data.error)}</div>`;
+                    return;
+                }
+
+                if (data.success && data.groups) {
+                    // Cache the data
+                    cachedGroupsData = data.groups;
+                    allGroupsData = data.groups;
+                    lastGroupsFetchTime = Date.now();
+
+                    renderGroups(data.groups);
+                    updateSearchStats(data.groups);
+                    setStatus(`Loaded ${data.total_groups} groups from YAML file`);
+                } else {
+                    content.innerHTML = '<p>Unable to parse groups data.</p>';
+                }
+
+            } catch (error) {
+                content.innerHTML = `<div class="error-message"><strong>Error:</strong> ${escapeHtml(error.message)}</div>`;
+            }
+        }
+
+        async function loadSubsystems(forceRefresh = false) {
+            const content = document.getElementById('groupsContent');
+            const searchInput = document.getElementById('groupsSearch');
+
+            // Use cached data if available and not forcing refresh
+            if (!forceRefresh && cachedSubsystemsData) {
+                allSubsystemsData = cachedSubsystemsData;
+                renderSubsystems(cachedSubsystemsData);
+                updateSearchStats(cachedSubsystemsData, 0, '', 'subsystems');
+
+                // Show cache indicator
+                const cacheAge = lastSubsystemsFetchTime ? Math.round((Date.now() - lastSubsystemsFetchTime) / 1000) : 0;
+                setStatus(`Loaded from cache (${cacheAge}s ago). Click 🔄 to refresh.`);
+                return;
+            }
+
+            // Fetch from server
+            content.innerHTML = '<p>Loading subsystems...</p>';
+            searchInput.value = '';
+
+            try {
+                const response = await fetch('/get_yaml_subsystems');
+                const data = await response.json();
+
+                if (data.error) {
+                    content.innerHTML = `<div class="error-message"><strong>Error:</strong> ${escapeHtml(data.error)}</div>`;
+                    return;
+                }
+
+                if (data.success && data.subsystems) {
+                    // Cache the data
+                    cachedSubsystemsData = data.subsystems;
+                    allSubsystemsData = data.subsystems;
+                    lastSubsystemsFetchTime = Date.now();
+
+                    renderSubsystems(data.subsystems);
+                    updateSearchStats(data.subsystems, 0, '', 'subsystems');
+                    setStatus(`Loaded ${data.total_subsystems} subsystems from YAML file`);
+                } else {
+                    content.innerHTML = '<p>Unable to parse subsystems data.</p>';
+                }
+
+            } catch (error) {
+                content.innerHTML = `<div class="error-message"><strong>Error:</strong> ${escapeHtml(error.message)}</div>`;
+            }
+        }
+
+        async function refreshData() {
+            const refreshBtn = document.getElementById('refreshGroupsBtn');
+            refreshBtn.classList.add('spinning');
+
+            try {
+                if (currentView === 'groups') {
+                    await loadGroups(true);
+                } else if (currentView === 'subsystems') {
+                    await loadSubsystems(true);
+                } else {
+                    await loadPods(true);
+                }
+            } finally {
+                refreshBtn.classList.remove('spinning');
+            }
+        }
+
+        function switchTab(tab) {
+            currentView = tab;
+            localStorage.setItem('viewMode', currentView);
+            updateViewUI();
+            if (currentView === 'groups') {
+                loadGroups();
+            } else if (currentView === 'subsystems') {
+                loadSubsystems();
+            } else {
+                loadPods();
+            }
+        }
+
+        function updateViewUI() {
+            const drawerTitle = document.getElementById('drawerTitle');
+            const searchInput = document.getElementById('groupsSearch');
+
+            ['subsystems', 'groups', 'pods'].forEach(tab => {
+                const btn = document.getElementById(`tab-${tab}`);
+                if (btn) btn.classList.toggle('active', tab === currentView);
+            });
+
+            if (currentView === 'groups') {
+                drawerTitle.textContent = '📁 Module Groups';
+                searchInput.placeholder = 'Search groups or modules...';
+            } else if (currentView === 'subsystems') {
+                drawerTitle.textContent = '📦 Subsystems';
+                searchInput.placeholder = 'Search subsystems or modules...';
+            } else {
+                drawerTitle.textContent = '🟢 Live Pods';
+                searchInput.placeholder = 'Search pods...';
+            }
+        }
+
+        function renderGroups(groups, searchTerm = '', highlightModules = []) {
+            const content = document.getElementById('groupsContent');
+            const groupNames = Object.keys(groups).sort();
+
+            if (groupNames.length === 0) {
+                content.innerHTML = '<p>No groups found matching your search.</p>';
+                return;
+            }
+
+            let html = `
+                <div class="help-text">
+                    💡 <strong>Quick Actions:</strong> Click to <strong>copy</strong> •
+                    Hover for <strong>⬆️ ⬇️ 🔌 🌿</strong> actions •
+                    Press <strong>/</strong> to search
+                </div>
+            `;
+
+            groupNames.forEach(groupName => {
+                const modules = groups[groupName];
+                const visibleModules = highlightModules.length > 0
+                    ? modules.filter(m => highlightModules.includes(m))
+                    : modules;
+
+                if (visibleModules.length === 0) return;
+
+                html += `
+                    <div class="group-section" data-group-name="${escapeHtml(groupName)}">
+                        <div class="group-title">
+                            <span class="group-name"
+                                  onclick="copyGroupName('${escapeHtml(groupName)}')"
+                                  title="Click to copy group name">
+                                📁 ${escapeHtml(groupName)} (${visibleModules.length} ${highlightModules.length > 0 ? 'matching' : ''} modules)
+                            </span>
+                            <div class="group-actions">
+                                <button class="group-action-btn up-btn"
+                                        onclick="event.stopPropagation(); runGroupUp('${escapeHtml(groupName)}')"
+                                        title="Run all modules: gong-module-run up --group-names ${escapeHtml(groupName)} --remote">⬆️ Up</button>
+                                <button class="group-action-btn down-btn"
+                                        onclick="event.stopPropagation(); runGroupDown('${escapeHtml(groupName)}')"
+                                        title="Stop all modules: gong-module-run down --group-names ${escapeHtml(groupName)} --remote">⬇️ Down</button>
+                                <button class="group-action-btn branch-btn"
+                                        onclick="event.stopPropagation(); openBranchInputModal('${escapeHtml(groupName)}', 'group')"
+                                        title="Run from branch: gong-module-run up --group-names ${escapeHtml(groupName)} --branch-name [branch] --remote">🌿 Branch</button>
+                            </div>
+                        </div>
+                        <div class="modules-list">
+                            ${visibleModules.map(module => {
+                                const isHighlighted = highlightModules.includes(module);
+                                const isIntercepted = interceptedModules.has(module);
+                                const highlightClass = isHighlighted ? 'highlighted' : '';
+                                const interceptedClass = isIntercepted ? 'intercepted' : '';
+                                return `
+                                    <div class="module-item ${highlightClass} ${interceptedClass}"
+                                         onclick="copyModuleName('${escapeHtml(module)}')"
+                                         title="${escapeHtml(module)}">
+                                        <span class="module-name">${moduleStatusDot(module)}${isIntercepted ? '🔌 ' : ''}${escapeHtml(module)}</span>
+                                        <div class="module-actions">
+                                            <button class="module-action-btn up"
+                                                    onclick="event.stopPropagation(); runModuleUp('${escapeHtml(module)}')"
+                                                    title="Run: gong-module-run up --image-names ${escapeHtml(module)} --remote">⬆️</button>
+                                            <button class="module-action-btn down"
+                                                    onclick="event.stopPropagation(); runModuleDown('${escapeHtml(module)}')"
+                                                    title="Stop: gong-module-run down --image-names ${escapeHtml(module)} --remote">⬇️</button>
+                                            ${isIntercepted
+                                                ? `<button class="module-action-btn leave"
+                                                          onclick="event.stopPropagation(); leaveModuleFromDrawer('${escapeHtml(module)}')"
+                                                          title="Leave: gong-module-run remote --leave ${escapeHtml(module)}">❌</button>`
+                                                : `<button class="module-action-btn intercept"
+                                                          onclick="event.stopPropagation(); interceptModuleFromDrawer('${escapeHtml(module)}')"
+                                                          title="Intercept: gong-module-run remote --intercept ${escapeHtml(module)}">🔌</button>`
+                                            }
+                                            <button class="module-action-btn branch"
+                                                    onclick="event.stopPropagation(); openBranchInputModal('${escapeHtml(module)}', 'module')"
+                                                    title="Run from branch: gong-module-run up --image-names ${escapeHtml(module)} --branch-name [branch] --remote">🌿</button>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            content.innerHTML = html;
+        }
+
+        function renderSubsystems(subsystems, searchTerm = '', highlightModules = []) {
+            const content = document.getElementById('groupsContent');
+            const subsystemNames = Object.keys(subsystems).sort();
+
+            if (subsystemNames.length === 0) {
+                content.innerHTML = '<p>No subsystems found matching your search.</p>';
+                return;
+            }
+
+            let html = `
+                <div class="help-text">
+                    💡 <strong>Quick Actions:</strong> Click to <strong>copy</strong> •
+                    Hover for <strong>⬆️ ⬇️ 🔌 🌿</strong> actions •
+                    Press <strong>/</strong> to search
+                </div>
+            `;
+
+            subsystemNames.forEach(subsystemName => {
+                const modules = subsystems[subsystemName];
+                const visibleModules = highlightModules.length > 0
+                    ? modules.filter(m => highlightModules.includes(m))
+                    : modules;
+
+                if (visibleModules.length === 0) return;
+
+                html += `
+                    <div class="subsystem-section" data-subsystem-name="${escapeHtml(subsystemName)}">
+                        <div class="subsystem-title"
+                             onclick="copySubsystemName('${escapeHtml(subsystemName)}')"
+                             title="Click to copy subsystem name">
+                            📦 ${escapeHtml(subsystemName)} (${visibleModules.length} module${visibleModules.length !== 1 ? 's' : ''})
+                        </div>
+                        <div class="modules-list">
+                            ${visibleModules.map(module => {
+                                const isHighlighted = highlightModules.includes(module);
+                                const isIntercepted = interceptedModules.has(module);
+                                const highlightClass = isHighlighted ? 'highlighted' : '';
+                                const interceptedClass = isIntercepted ? 'intercepted' : '';
+                                return `
+                                    <div class="module-item ${highlightClass} ${interceptedClass}"
+                                         onclick="copyModuleName('${escapeHtml(module)}')"
+                                         title="${escapeHtml(module)}">
+                                        <span class="module-name">${moduleStatusDot(module)}${isIntercepted ? '🔌 ' : ''}${escapeHtml(module)}</span>
+                                        <div class="module-actions">
+                                            <button class="module-action-btn up"
+                                                    onclick="event.stopPropagation(); runModuleUp('${escapeHtml(module)}')"
+                                                    title="Run: gong-module-run up --image-names ${escapeHtml(module)} --remote">⬆️</button>
+                                            <button class="module-action-btn down"
+                                                    onclick="event.stopPropagation(); runModuleDown('${escapeHtml(module)}')"
+                                                    title="Stop: gong-module-run down --image-names ${escapeHtml(module)} --remote">⬇️</button>
+                                            ${isIntercepted
+                                                ? `<button class="module-action-btn leave"
+                                                          onclick="event.stopPropagation(); leaveModuleFromDrawer('${escapeHtml(module)}')"
+                                                          title="Leave: gong-module-run remote --leave ${escapeHtml(module)}">❌</button>`
+                                                : `<button class="module-action-btn intercept"
+                                                          onclick="event.stopPropagation(); interceptModuleFromDrawer('${escapeHtml(module)}')"
+                                                          title="Intercept: gong-module-run remote --intercept ${escapeHtml(module)}">🔌</button>`
+                                            }
+                                            <button class="module-action-btn branch"
+                                                    onclick="event.stopPropagation(); openBranchInputModal('${escapeHtml(module)}', 'module')"
+                                                    title="Run from branch: gong-module-run up --image-names ${escapeHtml(module)} --branch-name [branch] --remote">🌿</button>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            content.innerHTML = html;
+        }
+
+        function getRunningModulesSet() {
+            if (!cachedPodsData) return new Set();
+            const running = new Set();
+            Object.values(cachedPodsData).forEach(modules => modules.forEach(m => running.add(m)));
+            return running;
+        }
+
+        function moduleStatusDot(module) {
+            if (interceptedModules.has(module)) {
+                return `<span class="module-status-dot intercepted" title="Intercepted"></span>`;
+            }
+            if (!cachedPodsData) return '';
+            return getRunningModulesSet().has(module)
+                ? `<span class="module-status-dot running" title="Running"></span>`
+                : `<span class="module-status-dot stopped" title="Not running"></span>`;
+        }
+
+        function copySubsystemName(subsystemName) {
+            copyToClipboard(subsystemName);
+            setStatus(`Copied subsystem name: ${subsystemName}`);
+        }
+
+        function isKubectlConnectionIssue(text) {
+            const patterns = ['timed out', 'unable to connect', 'i/o timeout', 'connection refused',
+                              'dial tcp', 'no such host', 'context deadline exceeded', 'kubectl failed'];
+            return patterns.some(p => text.toLowerCase().includes(p));
+        }
+
+        const KUBECTL_VPN_HINT_HTML = `<div class="kubectl-vpn-hint">
+            💡 Make sure you are connected to <strong>VPN</strong> and your <strong>AWS Profiles</strong> are active, then try again.<br><br>
+            It could also be a <strong>DNS issue</strong> — try switching to Google's DNS server (<strong>8.8.8.8</strong>) in your Mac network settings: System Settings → Network → your connection → DNS.
+        </div>`;
+
+        async function loadPods(forceRefresh = false) {
+            const content = document.getElementById('groupsContent');
+            const statsDiv = document.getElementById('searchStats');
+
+            if (!forceRefresh && cachedPodsData) {
+                renderPods(cachedPodsData);
+                if (lastPodsFetchTime) {
+                    const cacheAge = Math.round((Date.now() - lastPodsFetchTime) / 1000);
+                    const total = Object.values(cachedPodsData).reduce((s, m) => s + m.length, 0);
+                    statsDiv.innerHTML += ` <span style="color: #28a745; font-size: 12px;">• Cached ${cacheAge}s ago</span>`;
+                }
+                return;
+            }
+
+            content.innerHTML = '<p>Loading live pods...</p>';
+
+            try {
+                const response = await fetch('/get_running_pods');
+                const data = await response.json();
+
+                if (data.success && data.grouped_pods) {
+                    cachedPodsData = data.grouped_pods;
+                    lastPodsFetchTime = Date.now();
+                    renderPods(data.grouped_pods);
+                    setStatus(`Loaded ${data.count} running pods`);
+                    // Refresh dots in Groups/Subsystems if currently viewing them
+                    if (currentView === 'groups' && allGroupsData) filterGroups();
+                    else if (currentView === 'subsystems' && allSubsystemsData) filterSubsystemsView();
+                } else {
+                    const errMsg = data.error || 'Unable to load pods';
+                    const hint = isKubectlConnectionIssue(errMsg) ? KUBECTL_VPN_HINT_HTML : '';
+                    content.innerHTML = `<div class="error-message">${escapeHtml(errMsg)}</div>${hint}`;
+                }
+            } catch (e) {
+                const hint = isKubectlConnectionIssue(e.message) ? KUBECTL_VPN_HINT_HTML : '';
+                content.innerHTML = `<div class="error-message">${escapeHtml(e.message)}</div>${hint}`;
+            }
+        }
+
+        function renderPods(groupedPods, searchTerm = '') {
+            const content = document.getElementById('groupsContent');
+            const statsDiv = document.getElementById('searchStats');
+
+            // Filter if search term provided
+            const filtered = {};
+            const matchingModules = new Set();
+            Object.keys(groupedPods).forEach(group => {
+                const modules = searchTerm
+                    ? groupedPods[group].filter(m => {
+                        const hit = m.toLowerCase().includes(searchTerm) || group.toLowerCase().includes(searchTerm);
+                        if (m.toLowerCase().includes(searchTerm)) matchingModules.add(m);
+                        return hit;
+                      })
+                    : groupedPods[group];
+                if (modules.length > 0) filtered[group] = modules;
+            });
+
+            const groupCount = Object.keys(filtered).length;
+            const totalModules = Object.values(filtered).reduce((s, m) => s + m.length, 0);
+            if (searchTerm) {
+                statsDiv.innerHTML = `Found <strong>${matchingModules.size || totalModules}</strong> pods in <strong>${groupCount}</strong> group${groupCount !== 1 ? 's' : ''}`;
+            } else {
+                statsDiv.innerHTML = `<strong>${groupCount}</strong> group${groupCount !== 1 ? 's' : ''} • <strong>${totalModules}</strong> running pod${totalModules !== 1 ? 's' : ''}`;
+            }
+
+            if (totalModules === 0) {
+                content.innerHTML = '<p>No running pods found.</p>';
+                return;
+            }
+
+            let html = `
+                <div class="help-text">
+                    💡 <strong>Quick Actions:</strong> Click to <strong>copy</strong> •
+                    Hover for <strong>⬆️ Up · ⬇️ Down · 🔌 Intercept · 🌿 Branch · 📋 Logs</strong> •
+                    Press <strong>/</strong> to search
+                </div>
+            `;
+
+            Object.keys(filtered).forEach(group => {
+                const modules = filtered[group];
+                html += `
+                    <div class="pod-section">
+                        <div class="pod-title">
+                            <span class="group-name"
+                                  onclick="copyToClipboard('${escapeHtml(group)}'); setStatus('Copied: ${escapeHtml(group)}')"
+                                  title="Click to copy group name">
+                                🟢 ${escapeHtml(group)} (${modules.length} pod${modules.length !== 1 ? 's' : ''})
+                            </span>
+                            <div class="group-actions">
+                                <button class="pod-action-btn"
+                                        onclick="event.stopPropagation(); openBranchInputModal('${escapeHtml(group)}', 'group')"
+                                        title="Run from branch">🌿 Branch</button>
+                            </div>
+                        </div>
+                        <div class="modules-list">
+                            ${modules.map(pod => {
+                                const isIntercepted = interceptedModules.has(pod);
+                                const interceptedClass = isIntercepted ? 'intercepted' : '';
+                                const highlighted = searchTerm && pod.toLowerCase().includes(searchTerm) ? 'highlighted' : '';
+                                return `
+                                    <div class="module-item ${interceptedClass} ${highlighted}"
+                                         onclick="copyModuleName('${escapeHtml(pod)}')"
+                                         title="${escapeHtml(pod)}">
+                                        <span class="module-name">${isIntercepted ? '🔌 ' : ''}${escapeHtml(pod)}</span>
+                                        <div class="module-actions">
+                                            <button class="module-action-btn up"
+                                                    onclick="event.stopPropagation(); runModuleUp('${escapeHtml(pod)}')"
+                                                    title="Run: gong-module-run up --image-names ${escapeHtml(pod)} --remote">⬆️</button>
+                                            <button class="module-action-btn down"
+                                                    onclick="event.stopPropagation(); runModuleDown('${escapeHtml(pod)}')"
+                                                    title="Stop: gong-module-run down --image-names ${escapeHtml(pod)} --remote">⬇️</button>
+                                            ${isIntercepted
+                                                ? `<button class="module-action-btn leave"
+                                                          onclick="event.stopPropagation(); leaveModuleFromDrawer('${escapeHtml(pod)}')"
+                                                          title="Leave: gong-module-run remote --leave ${escapeHtml(pod)}">❌</button>`
+                                                : `<button class="module-action-btn intercept"
+                                                          onclick="event.stopPropagation(); interceptModuleFromDrawer('${escapeHtml(pod)}')"
+                                                          title="Intercept: gong-module-run remote --intercept ${escapeHtml(pod)}">🔌</button>`
+                                            }
+                                            <button class="module-action-btn branch"
+                                                    onclick="event.stopPropagation(); openBranchInputModal('${escapeHtml(pod)}', 'module')"
+                                                    title="Run from branch: gong-module-run up --image-names ${escapeHtml(pod)} --branch-name [branch] --remote">🌿</button>
+                                            <button class="module-action-btn"
+                                                    onclick="event.stopPropagation(); openLogViewer('${escapeHtml(pod)}')"
+                                                    title="View logs">📋</button>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            content.innerHTML = html;
+        }
+
+        function filterGroups() {
+            // Route to appropriate filter based on current view
+            if (currentView === 'groups') {
+                filterGroupsView();
+            } else if (currentView === 'subsystems') {
+                filterSubsystemsView();
+            } else {
+                filterPodsView();
+            }
+        }
+
+        function filterPodsView() {
+            if (!cachedPodsData) return;
+            const searchTerm = document.getElementById('groupsSearch').value.toLowerCase().trim();
+            renderPods(cachedPodsData, searchTerm);
+        }
+
+
+        function filterGroupsView() {
+            if (!allGroupsData) return;
+
+            const searchTerm = document.getElementById('groupsSearch').value.toLowerCase().trim();
+
+            if (!searchTerm) {
+                // No search term, show all groups
+                renderGroups(allGroupsData);
+                updateSearchStats(allGroupsData);
+                return;
+            }
+
+            // Check if searching for a group name
+            const matchingGroups = {};
+            const matchingModules = new Set();
+
+            // First pass: find matching groups and modules
+            Object.keys(allGroupsData).forEach(groupName => {
+                const modules = allGroupsData[groupName];
+
+                // Check if group name matches
+                if (groupName.toLowerCase().includes(searchTerm)) {
+                    matchingGroups[groupName] = modules;
+                } else {
+                    // Check if any module in this group matches
+                    const matchedModulesInGroup = modules.filter(m =>
+                        m.toLowerCase().includes(searchTerm)
+                    );
+
+                    if (matchedModulesInGroup.length > 0) {
+                        matchingGroups[groupName] = modules;
+                        matchedModulesInGroup.forEach(m => matchingModules.add(m));
+                    }
+                }
+            });
+
+            // Render filtered results
+            if (matchingModules.size > 0) {
+                // Module search: show only matching modules highlighted
+                renderGroups(matchingGroups, searchTerm, Array.from(matchingModules));
+            } else {
+                // Group search: show all modules in matching groups
+                renderGroups(matchingGroups, searchTerm);
+            }
+
+            updateSearchStats(matchingGroups, matchingModules.size, searchTerm);
+        }
+
+        function filterSubsystemsView() {
+            if (!allSubsystemsData) return;
+
+            const searchTerm = document.getElementById('groupsSearch').value.toLowerCase().trim();
+
+            if (!searchTerm) {
+                // No search term, show all subsystems
+                renderSubsystems(allSubsystemsData);
+                updateSearchStats(allSubsystemsData, 0, '', 'subsystems');
+                return;
+            }
+
+            // Check if searching for a subsystem name
+            const matchingSubsystems = {};
+            const matchingModules = new Set();
+
+            // First pass: find matching subsystems and modules
+            Object.keys(allSubsystemsData).forEach(subsystemName => {
+                const modules = allSubsystemsData[subsystemName];
+
+                // Check if subsystem name matches
+                if (subsystemName.toLowerCase().includes(searchTerm)) {
+                    matchingSubsystems[subsystemName] = modules;
+                } else {
+                    // Check if any module in this subsystem matches
+                    const matchedModulesInSubsystem = modules.filter(m =>
+                        m.toLowerCase().includes(searchTerm)
+                    );
+
+                    if (matchedModulesInSubsystem.length > 0) {
+                        matchingSubsystems[subsystemName] = modules;
+                        matchedModulesInSubsystem.forEach(m => matchingModules.add(m));
+                    }
+                }
+            });
+
+            // Render filtered results
+            if (matchingModules.size > 0) {
+                // Module search: show only matching modules highlighted
+                renderSubsystems(matchingSubsystems, searchTerm, Array.from(matchingModules));
+            } else {
+                // Subsystem search: show all modules in matching subsystems
+                renderSubsystems(matchingSubsystems, searchTerm);
+            }
+
+            updateSearchStats(matchingSubsystems, matchingModules.size, searchTerm, 'subsystems');
+        }
+
+        function updateSearchStats(data, matchingModulesCount = 0, searchTerm = '', type = 'groups') {
+            const statsDiv = document.getElementById('searchStats');
+            const containerCount = Object.keys(data).length;
+            const containerLabel = type === 'groups' ? 'group' : 'subsystem';
+            const containerLabelPlural = type === 'groups' ? 'groups' : 'subsystems';
+
+            // Count unique modules and total appearances
+            const uniqueModules = new Set();
+            let totalAppearances = 0;
+
+            Object.values(data).forEach(modules => {
+                totalAppearances += modules.length;
+                modules.forEach(module => uniqueModules.add(module));
+            });
+
+            const uniqueCount = uniqueModules.size;
+
+            let statsHtml = '';
+
+            if (searchTerm) {
+                if (matchingModulesCount > 0) {
+                    // Count unique matching modules
+                    const uniqueMatching = new Set();
+                    Object.values(data).forEach(modules => {
+                        modules.forEach(module => {
+                            if (module.toLowerCase().includes(searchTerm.toLowerCase())) {
+                                uniqueMatching.add(module);
+                            }
+                        });
+                    });
+                    statsHtml = `Found <strong>${uniqueMatching.size}</strong> unique modules (<strong>${matchingModulesCount}</strong> appearances) in <strong>${containerCount}</strong> ${containerLabelPlural}`;
+                } else {
+                    statsHtml = `Found <strong>${containerCount}</strong> matching ${containerLabelPlural} • <strong>${uniqueCount}</strong> unique modules (<strong>${totalAppearances}</strong> total appearances)`;
+                }
+            } else {
+                statsHtml = `<strong>${containerCount}</strong> ${containerLabelPlural} • <strong>${uniqueCount}</strong> unique modules (<strong>${totalAppearances}</strong> total appearances)`;
+            }
+
+            // Add cache indicator if using cached data
+            const cacheData = type === 'groups' ? cachedGroupsData : cachedSubsystemsData;
+            const lastFetch = type === 'groups' ? lastGroupsFetchTime : lastSubsystemsFetchTime;
+            if (cacheData && lastFetch) {
+                const cacheAge = Math.round((Date.now() - lastFetch) / 1000);
+                statsHtml += ` <span style="color: #28a745; font-size: 12px;">• Cached ${cacheAge}s ago</span>`;
+            }
+
+            statsDiv.innerHTML = statsHtml;
+        }
+
+        function copyGroupName(groupName) {
+            copyToClipboard(groupName);
+            setStatus(`Copied group name: ${groupName}`);
+        }
+
+        function copyModuleName(moduleName) {
+            copyToClipboard(moduleName);
+            setStatus(`Copied module name: ${moduleName}`);
+        }
+
+        async function runModuleUp(moduleName) {
+            const command = `gong-module-run up --image-names ${moduleName} --remote`;
+            await executeCommand(command);
+        }
+
+        async function runModuleDown(moduleName) {
+            const command = `gong-module-run down --image-names ${moduleName} --remote`;
+            await executeCommand(command);
+        }
+
+        async function runGroupUp(groupName) {
+            const command = `gong-module-run up --group-names ${groupName} --remote`;
+            await executeCommand(command);
+        }
+
+        async function runGroupDown(groupName) {
+            const command = `gong-module-run down --group-names ${groupName} --remote`;
+            await executeCommand(command);
+        }
+
+        function copyToClipboard(text) {
+            // Create temporary textarea
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+
+            try {
+                document.execCommand('copy');
+            } catch (err) {
+                console.error('Failed to copy:', err);
+            }
+
+            document.body.removeChild(textarea);
+        }
+
+        // Submit the interactive input bar (Enter or Send button)
+        async function submitInteractiveInput() {
+            const inp = document.getElementById('interactive-input');
+            const value = inp.value;
+            inp.value = '';
+            inp.type = 'text';
+            document.getElementById('interactive-input-label').textContent = '⌨ Input:';
+            inp.placeholder = 'Type here and press Enter to send to the running process';
+            await sendInput(value + '\n');
+            inp.focus();
+        }
+
+        // Wire Enter and Ctrl+C inside the interactive input bar
+        document.getElementById('interactive-input').addEventListener('keydown', async (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                await submitInteractiveInput();
+            } else if (e.key === 'c' && e.ctrlKey) {
+                e.preventDefault();
+                await sendInput('\x03');
+            }
+        });
+
+        // Interactive terminal input — send keypresses to the running process
+        // (handles arrow keys and y/n prompts when focus is NOT on the input bar)
+        document.addEventListener('keydown', async (e) => {
+            const terminal = document.getElementById('terminal');
+            if (!terminal.classList.contains('running')) return;
+
+            // Don't intercept when user is typing in an input field
+            const active = document.activeElement;
+            if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) return;
+
+            const keyMap = {
+                'ArrowUp':    '\x1b[A',
+                'ArrowDown':  '\x1b[B',
+                'ArrowLeft':  '\x1b[D',
+                'ArrowRight': '\x1b[C',
+                'Enter':      '\n',
+            };
+
+            let toSend = keyMap[e.key] ?? null;
+
+            // Single printable chars (y/n prompts, space, etc.)
+            if (toSend === null && e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+                toSend = e.key;
+            }
+
+            if (toSend !== null) {
+                e.preventDefault();
+                await sendInput(toSend);
+            }
+        });
+
+        // Focus search with '/' keyboard shortcut
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '/' && document.activeElement.id !== 'groupsSearch' && document.activeElement.id !== 'commandInput') {
+                e.preventDefault();
+                document.getElementById('groupsSearch').focus();
+            }
+        });
+
+        // Keyboard Shortcuts Modal Functions
+        function openShortcutsModal() {
+            document.getElementById('shortcutsModal').classList.add('active');
+        }
+
+        function closeShortcutsModal() {
+            document.getElementById('shortcutsModal').classList.remove('active');
+        }
+
+        // Close shortcuts modal when clicking outside
+        document.getElementById('shortcutsModal').addEventListener('click', (e) => {
+            if (e.target.id === 'shortcutsModal') {
+                closeShortcutsModal();
+            }
+        });
+
+        // Resizable Drawer Functions
+        let isResizing = false;
+        const drawer = document.getElementById('drawer');
+        const resizeHandle = document.getElementById('drawerResizeHandle');
+        const DRAWER_MIN_WIDTH = 300;
+        const DRAWER_MAX_WIDTH_PERCENT = 0.5; // 50% of viewport
+
+        // Load saved drawer width from localStorage
+        const savedDrawerWidth = localStorage.getItem('drawerWidth');
+        if (savedDrawerWidth) {
+            drawer.style.width = savedDrawerWidth + 'px';
+        }
+
+        resizeHandle.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            resizeHandle.classList.add('dragging');
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+
+            const viewportWidth = window.innerWidth;
+            const maxWidth = viewportWidth * DRAWER_MAX_WIDTH_PERCENT;
+            const newWidth = viewportWidth - e.clientX;
+
+            // Constrain within min and max
+            if (newWidth >= DRAWER_MIN_WIDTH && newWidth <= maxWidth) {
+                drawer.style.width = newWidth + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isResizing) {
+                isResizing = false;
+                resizeHandle.classList.remove('dragging');
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+
+                // Save to localStorage
+                const currentWidth = drawer.offsetWidth;
+                localStorage.setItem('drawerWidth', currentWidth);
+            }
+        });
+
+        // Global keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Open shortcuts modal with "?"
+            if (e.key === '?' && document.activeElement.tagName !== 'INPUT') {
+                e.preventDefault();
+                openShortcutsModal();
+            }
+
+            // Close modal with Escape
+            if (e.key === 'Escape') {
+                const shortcutsModal = document.getElementById('shortcutsModal');
+                if (shortcutsModal.classList.contains('active')) {
+                    closeShortcutsModal();
+                }
+            }
+        });
+
+        // Branch Deployment
+        let branchTarget = null;
+        let branchType = null; // 'module' or 'group'
+        const MAX_RECENT_BRANCHES = 5;
+
+        function getRecentBranches() {
+            const branches = localStorage.getItem('recentBranches');
+            return branches ? JSON.parse(branches) : [];
+        }
+
+        function addRecentBranch(branchName) {
+            let branches = getRecentBranches();
+            // Remove if exists (to move to front)
+            branches = branches.filter(b => b !== branchName);
+            // Add to front
+            branches.unshift(branchName);
+            // Keep only last N
+            branches = branches.slice(0, MAX_RECENT_BRANCHES);
+            localStorage.setItem('recentBranches', JSON.stringify(branches));
+        }
+
+        function openBranchInputModal(target, type) {
+            branchTarget = target;
+            branchType = type;
+
+            const modal = document.getElementById('branchInputModal');
+            const targetDesc = document.getElementById('branchInputTarget').querySelector('strong');
+            const input = document.getElementById('branchNameInput');
+
+            // Set target description
+            const typeLabel = type === 'module' ? 'Module' : 'Group';
+            targetDesc.textContent = `${typeLabel}: ${target}`;
+
+            // Clear and focus input
+            input.value = '';
+
+            // Load recent branches
+            updateRecentBranchesList();
+
+            modal.classList.add('active');
+
+            // Focus input after modal is visible
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function closeBranchInputModal() {
+            document.getElementById('branchInputModal').classList.remove('active');
+        }
+
+        function updateRecentBranchesList() {
+            const recentList = document.getElementById('branchRecentList');
+            const recentSection = document.getElementById('branchRecentSection');
+            const branches = getRecentBranches();
+
+            if (branches.length === 0) {
+                recentSection.style.display = 'none';
+                return;
+            }
+
+            recentSection.style.display = 'block';
+            recentList.innerHTML = branches.map(branch =>
+                `<div class="branch-recent-item" onclick="selectRecentBranch('${escapeHtml(branch)}')">${escapeHtml(branch)}</div>`
+            ).join('');
+        }
+
+        function selectRecentBranch(branchName) {
+            document.getElementById('branchNameInput').value = branchName;
+            document.getElementById('branchNameInput').focus();
+        }
+
+        async function runFromBranch() {
+            const branchName = document.getElementById('branchNameInput').value.trim();
+
+            if (!branchName) {
+                alert('Please enter a branch name');
+                return;
+            }
+
+            const target = branchTarget;
+            const type = branchType;
+
+            // Save to recent branches
+            addRecentBranch(branchName);
+
+            // Close modal
+            closeBranchInputModal();
+
+            // Build command
+            let command;
+            if (type === 'module') {
+                command = `gong-module-run up --image-names ${target} --branch-name ${branchName} --remote`;
+            } else if (type === 'group') {
+                command = `gong-module-run up --group-names ${target} --branch-name ${branchName} --remote`;
+            }
+
+            // Execute command
+            await executeCommand(command);
+        }
+
+        // Close branch modal when clicking outside
+        document.getElementById('branchInputModal').addEventListener('click', (e) => {
+            if (e.target.id === 'branchInputModal') {
+                closeBranchInputModal();
+            }
+        });
+
+        // Allow Enter key in branch input
+        document.getElementById('branchNameInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                runFromBranch();
+            }
+        });
+
+        // Close branch modal with Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const branchModal = document.getElementById('branchInputModal');
+                if (branchModal.classList.contains('active')) {
+                    closeBranchInputModal();
+                }
+            }
+        });
+
+        // Fetch k8s namespace and set the Gong App link
+        (async function initGongAppLink() {
+            try {
+                const res = await fetch('/get_k8s_namespace');
+                if (!res.ok) return;
+                const data = await res.json();
+                if (!data.namespace) return;
+                const url = `https://gong.app.${data.namespace}.c1-devex.ilc1.internal.gongio.net`;
+                const link = document.getElementById('gong-app-link');
+                link.href = url;
+                link.title = `Open Gong App (${data.namespace})`;
+                link.style.display = '';
+            } catch (e) {
+                // kubectl unavailable — button stays hidden
+            }
+        })();
+
+        // Load appropriate view and show intercept banner on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            // Initialize view UI
+            updateViewUI();
+
+            // Load appropriate data based on saved preference
+            if (currentView === 'groups') {
+                loadGroups();
+            } else if (currentView === 'subsystems') {
+                loadSubsystems();
+            } else {
+                loadPods();
+            }
+
+            silentCheckInterceptStatus();
+        });
+        // ── Log Viewer ──────────────────────────────────────────────────────
+        let logViewerOpen = false;
+        let logPaused = false;
+        let logEventSource = null;
+        let logLineCount = 0;
+        let logAutoScrollSuspended = false;
+        let logMarkElement = null;
+
+        function openLogViewer(podName) {
+            document.getElementById('logViewerTitle').textContent = podName;
+            document.getElementById('logOutput').innerHTML = '';
+            document.getElementById('logLineCount').textContent = '0 lines';
+            document.getElementById('logViewerStatus').textContent = '';
+            document.getElementById('logViewerStatus').className = 'log-status-indicator';
+            document.getElementById('logPauseBtn').textContent = '⏸ Pause';
+            document.getElementById('logViewerContainer').classList.remove('paused');
+            logLineCount = 0;
+            logPaused = false;
+            logAutoScrollSuspended = false;
+            logMarkElement = null;
+            document.getElementById('logJumpBtn').style.display = 'none';
+            logViewerOpen = true;
+            document.getElementById('logViewerModal').classList.add('active');
+            startLogStream(podName);
+        }
+
+        function startLogStream(podName) {
+            if (logEventSource) {
+                logEventSource.close();
+                logEventSource = null;
+            }
+            const status = document.getElementById('logViewerStatus');
+            status.textContent = 'Streaming';
+            status.className = 'log-status-indicator streaming';
+
+            logEventSource = new EventSource('/stream_pod_logs?pod=' + encodeURIComponent(podName) + '&tail=300');
+
+            logEventSource.onmessage = (e) => {
+                const data = e.data;
+                if (data.startsWith('[LOG_END:')) {
+                    status.textContent = 'Stream ended';
+                    status.className = 'log-status-indicator';
+                    logEventSource.close();
+                    logEventSource = null;
+                } else if (data.startsWith('[ERROR]')) {
+                    appendLogLine(data.substring(7), 'log-error');
+                    status.textContent = 'Error';
+                    status.className = 'log-status-indicator';
+                } else {
+                    appendLogLine(data);
+                }
+            };
+
+            logEventSource.onerror = () => {
+                status.textContent = 'Disconnected';
+                status.className = 'log-status-indicator';
+            };
+        }
+
+        function appendLogLine(text, extraClass) {
+            const output = document.getElementById('logOutput');
+            const div = document.createElement('div');
+            div.className = 'log-line';
+            if (extraClass) {
+                div.classList.add(extraClass);
+            } else if (/\b(ERROR|FATAL)\b/.test(text)) {
+                div.classList.add('log-error');
+            } else if (/\bWARN(ING)?\b/.test(text)) {
+                div.classList.add('log-warn');
+            }
+            div.textContent = text;
+            if (logPaused) {
+                // Snapshot scroll position before appending so the view doesn't move
+                const savedTop = output.scrollTop;
+                output.appendChild(div);
+                output.scrollTop = savedTop;
+            } else {
+                output.appendChild(div);
+                output.scrollTop = output.scrollHeight;
+            }
+            logLineCount++;
+            document.getElementById('logLineCount').textContent = logLineCount + ' line' + (logLineCount !== 1 ? 's' : '');
+        }
+
+        function toggleLogPause() {
+            logPaused = !logPaused;
+            const btn = document.getElementById('logPauseBtn');
+            const container = document.getElementById('logViewerContainer');
+            if (logPaused) {
+                btn.textContent = '▶ Resume';
+                container.classList.add('paused');
+                logAutoScrollSuspended = true;
+            } else {
+                btn.textContent = '⏸ Pause';
+                container.classList.remove('paused');
+                logAutoScrollSuspended = false;
+                document.getElementById('logOutput').scrollTop = document.getElementById('logOutput').scrollHeight;
+            }
+        }
+
+        function closeLogViewer() {
+            if (logEventSource) {
+                logEventSource.close();
+                logEventSource = null;
+            }
+            document.getElementById('logViewerModal').classList.remove('active');
+            logViewerOpen = false;
+            logPaused = false;
+        }
+
+        function copyAllLogs() {
+            const text = Array.from(document.querySelectorAll('#logOutput .log-line'))
+                .map(el => el.textContent).join('\n');
+            copyToClipboard(text);
+            setStatus('Copied all log lines to clipboard');
+        }
+
+        // Auto-pause on manual scroll
+        document.getElementById('logOutput').addEventListener('scroll', () => {
+            const output = document.getElementById('logOutput');
+            const atBottom = output.scrollHeight - output.scrollTop - output.clientHeight < 50;
+            if (!atBottom && !logPaused) {
+                logPaused = true;
+                logAutoScrollSuspended = true;
+                document.getElementById('logPauseBtn').textContent = '▶ Resume';
+                document.getElementById('logViewerContainer').classList.add('paused');
+            } else if (atBottom && logPaused && logAutoScrollSuspended) {
+                logPaused = false;
+                logAutoScrollSuspended = false;
+                document.getElementById('logPauseBtn').textContent = '⏸ Pause';
+                document.getElementById('logViewerContainer').classList.remove('paused');
+            }
+        });
+
+        // Close log viewer with Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && logViewerOpen) {
+                closeLogViewer();
+            }
+        });
+
+        // Close log viewer when clicking the backdrop
+        document.getElementById('logViewerModal').addEventListener('click', (e) => {
+            if (e.target.id === 'logViewerModal') {
+                closeLogViewer();
+            }
+        });
+        function insertLogMark() {
+            const output = document.getElementById('logOutput');
+            if (logMarkElement) logMarkElement.remove();
+            const mark = document.createElement('div');
+            mark.className = 'log-mark';
+            const ts = new Date().toTimeString().slice(0, 8);
+            mark.textContent = `MARK  ${ts}`;
+            output.appendChild(mark);
+            logMarkElement = mark;
+            document.getElementById('logJumpBtn').style.display = '';
+            if (!logPaused) output.scrollTop = output.scrollHeight;
+        }
+
+        function jumpToMark() {
+            if (logMarkElement) logMarkElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // ── End Log Viewer ───────────────────────────────────────────────────
+
+    </script>
+
+    <div id="logViewerModal" class="log-viewer-modal">
+        <div id="logViewerContainer" class="log-viewer-container">
+            <div class="log-viewer-header">
+                <span id="logViewerTitle">Logs</span>
+                <div class="log-viewer-controls">
+                    <span id="logViewerStatus" class="log-status-indicator"></span>
+                    <button id="logPauseBtn" class="log-ctrl-btn" onclick="toggleLogPause()">⏸ Pause</button>
+                    <button id="logMarkBtn" class="log-ctrl-btn" onclick="insertLogMark()">📍 Mark</button>
+                    <button id="logJumpBtn" class="log-ctrl-btn" style="display:none" onclick="jumpToMark()">↑ Mark</button>
+                    <button class="log-ctrl-btn" onclick="copyAllLogs()">Copy All</button>
+                    <button class="log-ctrl-btn log-close-btn" onclick="closeLogViewer()">✕</button>
+                </div>
+            </div>
+            <div id="logOutput"></div>
+            <div class="log-viewer-footer">
+                <span id="logLineCount">0 lines</span>
+                <span class="log-hint">Select text to copy • Scroll up to pause</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

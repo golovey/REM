@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# IntelliJ / PyCharm
+.idea/
+
+# macOS
+.DS_Store
+
+# Archives
+*.zip
+
+# Claude Code local config
+.claude/
