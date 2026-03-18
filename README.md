@@ -41,7 +41,7 @@ Type any shell command in the input box and press **Enter** or click **Run**.
 | Get Latest | `gong-module-run remote --refresh-modules` | Pull latest module versions |
 | Refetch DB | `gong-module-run synthetic-data --synthetic-data-image-tag latest --remote` | Refresh the database |
 | FF and DB Refresh | `gong-module-run remote --init` | Refresh feature flags and database |
-| Pods Status | `kubectl get pods` | Show running pods with image tags and status |
+| Pod Version | `kubectl get pods` | Show running pods with image tags and status |
 
 ### Sidebar Tabs
 
@@ -65,6 +65,7 @@ Live view of pods currently running in your active kubectl namespace.
 - Grouped by subsystem
 - Refreshes on demand — click the refresh icon or switch to the tab
 - Hover a pod to reveal quick action buttons: **⬆️ Up** · **⬇️ Down** · **🔌 Intercept** · **🌿 Branch** · **📋 Logs**
+- Click **👁 Watch** to open a live `kubectl get pods -w` stream with color-coded pod status (yellow = starting, green = ready, red = error, gray = terminating)
 
 #### Pod Log Viewer
 Click the **📋** button on any running pod to open a full-screen live log stream.

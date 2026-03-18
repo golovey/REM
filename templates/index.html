@@ -527,6 +527,76 @@
             box-shadow: 0 1px 4px rgba(250,123,23,0.3);
         }
 
+        /* Select mode toggle button */
+        .select-mode-btn {
+            background: white;
+            border: 1.5px solid #1a73e8;
+            color: #1a73e8;
+            border-radius: 6px;
+            padding: 3px 8px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s;
+            box-shadow: none;
+        }
+        .select-mode-btn:hover, .select-mode-btn.active {
+            background: #1a73e8;
+            color: white;
+            transform: none;
+        }
+
+        /* Pod checkbox in select mode */
+        .pod-checkbox {
+            flex-shrink: 0;
+            width: 14px;
+            height: 14px;
+            margin-right: 4px;
+            cursor: pointer;
+            accent-color: #1a73e8;
+        }
+
+        /* Selected pod highlight */
+        .pod-selected {
+            background: #e8f0fe !important;
+            border-left: 3px solid #1a73e8 !important;
+        }
+
+        /* Sticky create group bar */
+        .create-group-bar {
+            position: sticky;
+            bottom: 0;
+            background: #1a73e8;
+            color: white;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 0 0 8px 8px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-top: 8px;
+            z-index: 10;
+        }
+        .create-group-bar button {
+            background: white;
+            color: #1a73e8;
+            border: none;
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            box-shadow: none;
+        }
+        .create-group-bar button:hover {
+            background: #e8f0fe;
+            transform: none;
+            box-shadow: none;
+        }
+
         #groupsContent {
             flex: 1;
             overflow-y: auto;
@@ -1541,6 +1611,26 @@
             letter-spacing: 0.5px;
         }
 
+        /* Pod Watch status colors */
+        .pod-watch-pending    { color: #fa7b17; }
+        .pod-watch-creating   { color: #fbbc04; }
+        .pod-watch-running    { color: #34a853; }
+        .pod-watch-error      { color: #ea4335; font-weight: 600; }
+        .pod-watch-terminating { color: #80868b; }
+
+        #podWatchOutput {
+            flex: 1;
+            overflow-y: auto;
+            overflow-anchor: none;
+            font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 13px;
+            padding: 12px 16px;
+            user-select: text;
+            white-space: pre-wrap;
+            word-break: break-all;
+            line-height: 1.5;
+        }
+
     </style>
 </head>
 <body>
@@ -1591,7 +1681,7 @@
                 <button onclick="runQuickCommand('gong-module-run remote --refresh-modules')"
                         title="gong-module-run remote --refresh-modules">Get Latest</button>
                 <button onclick="showPodsStatus()"
-                        title="kubectl get pods — show image (last segment) and status">Pods Status</button>
+                        title="kubectl get pods — show image (last segment) and status">Pod Version</button>
             </div>
         </div>
 
@@ -1650,6 +1740,7 @@
             <button class="drawer-tab" id="tab-subsystems" onclick="switchTab('subsystems')">📦 Subsystems</button>
             <button class="drawer-tab" id="tab-groups" onclick="switchTab('groups')">📁 Groups</button>
             <button class="drawer-tab" id="tab-pods" onclick="switchTab('pods')">🟢 Live Pods</button>
+            <button class="drawer-tab" id="tab-mygroups" onclick="switchTab('mygroups')">⭐ My Groups</button>
         </div>
         <div class="search-container" id="searchContainer">
             <input type="text"
@@ -1694,6 +1785,25 @@
             <div class="branch-input-actions">
                 <button class="secondary" onclick="closeBranchInputModal()">Cancel</button>
                 <button onclick="runFromBranch()">Run</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Custom Group Modal -->
+    <div id="createGroupModal" class="branch-input-modal">
+        <div class="branch-input-content">
+            <div class="branch-input-header">
+                <h3>⭐ Create Custom Group</h3>
+                <p id="createGroupCount"></p>
+            </div>
+            <div class="branch-input-field">
+                <label>Group Name:</label>
+                <input type="text" id="createGroupNameInput" placeholder="e.g. My Sprint Services" />
+            </div>
+            <div class="branch-recent" id="createGroupPodsList" style="max-height:160px;overflow-y:auto;"></div>
+            <div class="branch-input-actions">
+                <button class="secondary" onclick="closeCreateGroupModal()">Cancel</button>
+                <button onclick="confirmCreateGroup()">Save Group</button>
             </div>
         </div>
     </div>
@@ -1796,6 +1906,28 @@
                 </div>
                 <div class="shortcut-item">
                     <span class="shortcut-description">Close log viewer</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">Esc</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="shortcuts-section">
+                <h3>Pod Watch (👁 Watch in Running Pods)</h3>
+                <div class="shortcut-item">
+                    <span class="shortcut-description">Pause / resume auto-scroll</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">Scroll up</span>
+                    </div>
+                </div>
+                <div class="shortcut-item">
+                    <span class="shortcut-description">Stop stream</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">■ Stop</span>
+                    </div>
+                </div>
+                <div class="shortcut-item">
+                    <span class="shortcut-description">Close Pod Watch</span>
                     <div class="shortcut-keys">
                         <span class="shortcut-key">Esc</span>
                     </div>
@@ -2161,7 +2293,9 @@
             interactiveInput.value = '';
             document.getElementById('interactive-input-label').textContent = '⌨ Input:';
             inputBar.style.display = 'flex';
-            interactiveInput.focus();
+            if (!document.activeElement || document.activeElement === document.body) {
+                interactiveInput.focus();
+            }
 
             setStatus(`Running: ${command} · ↑↓ Enter to interact`, true);
             appendToTerminal('\n');
@@ -2250,7 +2384,10 @@
                                     inp.placeholder = 'Type here and press Enter to send to the running process';
                                     document.getElementById('interactive-input-label').textContent = '⌨ Input:';
                                 }
-                                inp.focus();
+                                // Only grab focus if user hasn't focused something else
+                                if (!document.activeElement || document.activeElement === document.body) {
+                                    inp.focus();
+                                }
                             } else {
                                 // Complete line — finalise any pending partial so it won't be overwritten
                                 const partial = document.getElementById('partial-line');
@@ -2495,6 +2632,8 @@
                     await loadGroups(true);
                 } else if (currentView === 'subsystems') {
                     await loadSubsystems(true);
+                } else if (currentView === 'mygroups') {
+                    renderMyGroups();
                 } else {
                     await loadPods(true);
                 }
@@ -2511,6 +2650,8 @@
                 loadGroups();
             } else if (currentView === 'subsystems') {
                 loadSubsystems();
+            } else if (currentView === 'mygroups') {
+                renderMyGroups();
             } else {
                 loadPods();
             }
@@ -2520,7 +2661,7 @@
             const drawerTitle = document.getElementById('drawerTitle');
             const searchInput = document.getElementById('groupsSearch');
 
-            ['subsystems', 'groups', 'pods'].forEach(tab => {
+            ['subsystems', 'groups', 'pods', 'mygroups'].forEach(tab => {
                 const btn = document.getElementById(`tab-${tab}`);
                 if (btn) btn.classList.toggle('active', tab === currentView);
             });
@@ -2531,6 +2672,9 @@
             } else if (currentView === 'subsystems') {
                 drawerTitle.textContent = '📦 Subsystems';
                 searchInput.placeholder = 'Search subsystems or modules...';
+            } else if (currentView === 'mygroups') {
+                drawerTitle.textContent = '⭐ My Groups';
+                searchInput.placeholder = 'Search my groups or modules...';
             } else {
                 drawerTitle.textContent = '🟢 Live Pods';
                 searchInput.placeholder = 'Search pods...';
@@ -2650,10 +2794,23 @@
 
                 html += `
                     <div class="subsystem-section" data-subsystem-name="${escapeHtml(subsystemName)}">
-                        <div class="subsystem-title"
-                             onclick="copySubsystemName('${escapeHtml(subsystemName)}')"
-                             title="Click to copy subsystem name">
-                            📦 ${escapeHtml(subsystemName)} (${visibleModules.length} module${visibleModules.length !== 1 ? 's' : ''})
+                        <div class="group-title">
+                            <span class="group-name"
+                                  onclick="copySubsystemName('${escapeHtml(subsystemName)}')"
+                                  title="Click to copy subsystem name">
+                                📦 ${escapeHtml(subsystemName)} (${visibleModules.length} module${visibleModules.length !== 1 ? 's' : ''})
+                            </span>
+                            <div class="group-actions">
+                                <button class="group-action-btn up-btn"
+                                        onclick="event.stopPropagation(); runSubsystemUp('${escapeHtml(subsystemName)}')"
+                                        title="Up all: gong-module-run up --image-names ... --remote">⬆️ Up</button>
+                                <button class="group-action-btn down-btn"
+                                        onclick="event.stopPropagation(); runSubsystemDown('${escapeHtml(subsystemName)}')"
+                                        title="Down all: gong-module-run down --image-names ... --remote">⬇️ Down</button>
+                                <button class="group-action-btn branch-btn"
+                                        onclick="event.stopPropagation(); openBranchInputModal('${escapeHtml(subsystemName)}', 'subsystem')"
+                                        title="Run from branch: gong-module-run up --image-names ... --branch-name [branch] --remote">🌿 Branch</button>
+                            </div>
                         </div>
                         <div class="modules-list">
                             ${visibleModules.map(module => {
@@ -2799,11 +2956,24 @@
                 return;
             }
 
+            const allVisiblePods = Object.values(filtered).flat();
+            const allSelected = allVisiblePods.length > 0 && allVisiblePods.every(p => selectedPods.has(p));
+
             let html = `
-                <div class="help-text">
-                    💡 <strong>Quick Actions:</strong> Click to <strong>copy</strong> •
-                    Hover for <strong>⬆️ Up · ⬇️ Down · 🔌 Intercept · 🌿 Branch · 📋 Logs</strong> •
-                    Press <strong>/</strong> to search
+                <div class="help-text" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+                    <span>💡 <strong>Quick Actions:</strong> Click to <strong>copy</strong> •
+                    Hover for <strong>⬆️ Up · ⬇️ Down · 🔌 Intercept · 🌿 Branch · 📋 Logs</strong></span>
+                    <div style="display:flex;gap:6px;">
+                        ${selectModeActive ? `<button class="select-mode-btn" onclick="toggleSelectAll()" title="${allSelected ? 'Deselect all' : 'Select all visible pods'}">
+                            ${allSelected ? '☐ None' : '☑ All'}
+                        </button>` : ''}
+                        <button class="select-mode-btn ${selectModeActive ? 'active' : ''}" onclick="toggleSelectMode()" title="Select pods to create a custom group">
+                            ${selectModeActive ? '✅ Selecting...' : '☑️ Select'}
+                        </button>
+                        <button class="select-mode-btn ${podWatchOpen ? 'active' : ''}" onclick="openPodWatchModal()" title="Watch pods startup in real time">
+                            👁 Watch
+                        </button>
+                    </div>
                 </div>
             `;
 
@@ -2828,10 +2998,12 @@
                                 const isIntercepted = interceptedModules.has(pod);
                                 const interceptedClass = isIntercepted ? 'intercepted' : '';
                                 const highlighted = searchTerm && pod.toLowerCase().includes(searchTerm) ? 'highlighted' : '';
+                                const isSelected = selectedPods.has(pod);
                                 return `
-                                    <div class="module-item ${interceptedClass} ${highlighted}"
-                                         onclick="copyModuleName('${escapeHtml(pod)}')"
+                                    <div class="module-item ${interceptedClass} ${highlighted} ${isSelected && selectModeActive ? 'pod-selected' : ''}"
+                                         onclick="${selectModeActive ? `togglePodSelection('${escapeHtml(pod)}')` : `copyModuleName('${escapeHtml(pod)}')`}"
                                          title="${escapeHtml(pod)}">
+                                        ${selectModeActive ? `<input type="checkbox" class="pod-checkbox" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); togglePodSelection('${escapeHtml(pod)}')" />` : ''}
                                         <span class="module-name">${isIntercepted ? '🔌 ' : ''}${escapeHtml(pod)}</span>
                                         <div class="module-actions">
                                             <button class="module-action-btn up"
@@ -2863,6 +3035,15 @@
                 `;
             });
 
+            if (selectModeActive && selectedPods.size > 0) {
+                html += `
+                    <div class="create-group-bar">
+                        <span>${selectedPods.size} pod${selectedPods.size !== 1 ? 's' : ''} selected</span>
+                        <button onclick="openCreateGroupModal()">⭐ Create Group</button>
+                    </div>
+                `;
+            }
+
             content.innerHTML = html;
         }
 
@@ -2872,6 +3053,8 @@
                 filterGroupsView();
             } else if (currentView === 'subsystems') {
                 filterSubsystemsView();
+            } else if (currentView === 'mygroups') {
+                filterMyGroupsView();
             } else {
                 filterPodsView();
             }
@@ -3049,6 +3232,20 @@
             await executeCommand(command);
         }
 
+        async function runSubsystemUp(subsystemName) {
+            const modules = (allSubsystemsData && allSubsystemsData[subsystemName]) || [];
+            if (modules.length === 0) return;
+            const command = `gong-module-run up --image-names ${modules.join(' ')} --remote`;
+            await executeCommand(command);
+        }
+
+        async function runSubsystemDown(subsystemName) {
+            const modules = (allSubsystemsData && allSubsystemsData[subsystemName]) || [];
+            if (modules.length === 0) return;
+            const command = `gong-module-run down --image-names ${modules.join(' ')} --remote`;
+            await executeCommand(command);
+        }
+
         async function runGroupUp(groupName) {
             const command = `gong-module-run up --group-names ${groupName} --remote`;
             await executeCommand(command);
@@ -3057,6 +3254,231 @@
         async function runGroupDown(groupName) {
             const command = `gong-module-run down --group-names ${groupName} --remote`;
             await executeCommand(command);
+        }
+
+        // ── Custom Groups (My Groups) ──────────────────────────────────────────
+
+        let selectedPods = new Set();
+        let selectModeActive = false;
+        let podWatchOpen = false;
+        let podWatchReader = null;
+        let podWatchPaused = false;
+        let podWatchLineCount = 0;
+
+        function getCustomGroups() {
+            return JSON.parse(localStorage.getItem('customGroups') || '{}');
+        }
+
+        function saveCustomGroups(groups) {
+            localStorage.setItem('customGroups', JSON.stringify(groups));
+        }
+
+        function toggleSelectMode() {
+            selectModeActive = !selectModeActive;
+            if (!selectModeActive) selectedPods.clear();
+            if (cachedPodsData) {
+                const searchTerm = document.getElementById('groupsSearch').value.toLowerCase().trim();
+                renderPods(cachedPodsData, searchTerm);
+            }
+        }
+
+        function toggleSelectAll() {
+            if (!cachedPodsData) return;
+            const searchTerm = document.getElementById('groupsSearch').value.toLowerCase().trim();
+            const filtered = {};
+            Object.keys(cachedPodsData).forEach(group => {
+                const modules = searchTerm
+                    ? cachedPodsData[group].filter(m => m.toLowerCase().includes(searchTerm) || group.toLowerCase().includes(searchTerm))
+                    : cachedPodsData[group];
+                if (modules.length > 0) filtered[group] = modules;
+            });
+            const allVisible = Object.values(filtered).flat();
+            const allSelected = allVisible.every(p => selectedPods.has(p));
+            if (allSelected) {
+                allVisible.forEach(p => selectedPods.delete(p));
+            } else {
+                allVisible.forEach(p => selectedPods.add(p));
+            }
+            renderPods(cachedPodsData, searchTerm);
+        }
+
+        function togglePodSelection(podName) {
+            if (selectedPods.has(podName)) {
+                selectedPods.delete(podName);
+            } else {
+                selectedPods.add(podName);
+            }
+            if (cachedPodsData) {
+                const searchTerm = document.getElementById('groupsSearch').value.toLowerCase().trim();
+                renderPods(cachedPodsData, searchTerm);
+            }
+        }
+
+        function openCreateGroupModal() {
+            const pods = Array.from(selectedPods);
+            document.getElementById('createGroupCount').textContent = `${pods.length} pod${pods.length !== 1 ? 's' : ''} selected`;
+            document.getElementById('createGroupNameInput').value = '';
+            document.getElementById('createGroupPodsList').innerHTML =
+                `<div class="branch-recent-label">Pods to include:</div>` +
+                pods.map(p => `<div style="padding:3px 0;font-size:12px;color:#5f6368;">• ${escapeHtml(p)}</div>`).join('');
+            document.getElementById('createGroupModal').style.display = 'flex';
+            setTimeout(() => document.getElementById('createGroupNameInput').focus(), 50);
+        }
+
+        function closeCreateGroupModal() {
+            document.getElementById('createGroupModal').style.display = 'none';
+        }
+
+        function confirmCreateGroup() {
+            const name = document.getElementById('createGroupNameInput').value.trim();
+            if (!name) {
+                document.getElementById('createGroupNameInput').focus();
+                return;
+            }
+            const pods = Array.from(selectedPods);
+            if (pods.length === 0) { closeCreateGroupModal(); return; }
+            const groups = getCustomGroups();
+            groups[name] = pods;
+            saveCustomGroups(groups);
+            closeCreateGroupModal();
+            selectedPods.clear();
+            selectModeActive = false;
+            setStatus(`Group "${name}" saved with ${pods.length} pods`);
+            switchTab('mygroups');
+        }
+
+        function deleteCustomGroup(name) {
+            const groups = getCustomGroups();
+            delete groups[name];
+            saveCustomGroups(groups);
+            renderMyGroups();
+            setStatus(`Group "${name}" deleted`);
+        }
+
+        async function runCustomGroupUp(groupName) {
+            const groups = getCustomGroups();
+            const pods = groups[groupName] || [];
+            if (pods.length === 0) return;
+            const command = `gong-module-run up --image-names ${pods.join(' ')} --remote`;
+            await executeCommand(command);
+        }
+
+        async function runCustomGroupDown(groupName) {
+            const groups = getCustomGroups();
+            const pods = groups[groupName] || [];
+            if (pods.length === 0) return;
+            const command = `gong-module-run down --image-names ${pods.join(' ')} --remote`;
+            await executeCommand(command);
+        }
+
+        function filterMyGroupsView() {
+            const searchTerm = document.getElementById('groupsSearch').value.toLowerCase().trim();
+            renderMyGroups(searchTerm);
+        }
+
+        function renderMyGroups(searchTerm = '') {
+            const content = document.getElementById('groupsContent');
+            const statsDiv = document.getElementById('searchStats');
+            const groups = getCustomGroups();
+            const groupNames = Object.keys(groups).sort();
+
+            if (groupNames.length === 0) {
+                statsDiv.innerHTML = '';
+                content.innerHTML = `
+                    <div class="help-text" style="text-align:center;padding:24px 12px;">
+                        <div style="font-size:28px;margin-bottom:8px;">⭐</div>
+                        <strong>No custom groups yet</strong><br>
+                        <span style="color:#80868b;">Switch to the <strong>🟢 Live Pods</strong> tab,
+                        click <strong>☑️ Select</strong>, pick pods, then click <strong>⭐ Create Group</strong>.</span>
+                    </div>`;
+                return;
+            }
+
+            let totalModules = 0;
+            let html = `
+                <div class="help-text">
+                    💡 <strong>Custom Groups:</strong> Your saved pod selections •
+                    Hover for <strong>⬆️ ⬇️ 🔌 🌿 📋</strong> actions •
+                    Press <strong>/</strong> to search
+                </div>
+            `;
+
+            groupNames.forEach(groupName => {
+                const pods = groups[groupName];
+                const visible = searchTerm
+                    ? pods.filter(p => p.toLowerCase().includes(searchTerm) || groupName.toLowerCase().includes(searchTerm))
+                    : pods;
+                if (visible.length === 0) return;
+                totalModules += visible.length;
+
+                html += `
+                    <div class="group-section" data-group-name="${escapeHtml(groupName)}">
+                        <div class="group-title">
+                            <span class="group-name" title="${escapeHtml(groupName)}">
+                                ⭐ ${escapeHtml(groupName)} (${visible.length} module${visible.length !== 1 ? 's' : ''})
+                            </span>
+                            <div class="group-actions">
+                                <button class="group-action-btn up-btn"
+                                        onclick="event.stopPropagation(); runCustomGroupUp('${escapeHtml(groupName)}')"
+                                        title="Up all">⬆️ Up</button>
+                                <button class="group-action-btn down-btn"
+                                        onclick="event.stopPropagation(); runCustomGroupDown('${escapeHtml(groupName)}')"
+                                        title="Down all">⬇️ Down</button>
+                                <button class="group-action-btn"
+                                        style="color:#ea4335;"
+                                        onclick="event.stopPropagation(); deleteCustomGroup('${escapeHtml(groupName)}')"
+                                        title="Delete this group">🗑️</button>
+                            </div>
+                        </div>
+                        <div class="modules-list">
+                            ${visible.map(pod => {
+                                const isIntercepted = interceptedModules.has(pod);
+                                const interceptedClass = isIntercepted ? 'intercepted' : '';
+                                const highlighted = searchTerm && pod.toLowerCase().includes(searchTerm) ? 'highlighted' : '';
+                                return `
+                                    <div class="module-item ${interceptedClass} ${highlighted}"
+                                         onclick="copyModuleName('${escapeHtml(pod)}')"
+                                         title="${escapeHtml(pod)}">
+                                        <span class="module-name">${moduleStatusDot(pod)}${isIntercepted ? '🔌 ' : ''}${escapeHtml(pod)}</span>
+                                        <div class="module-actions">
+                                            <button class="module-action-btn up"
+                                                    onclick="event.stopPropagation(); runModuleUp('${escapeHtml(pod)}')"
+                                                    title="Up: gong-module-run up --image-names ${escapeHtml(pod)} --remote">⬆️</button>
+                                            <button class="module-action-btn down"
+                                                    onclick="event.stopPropagation(); runModuleDown('${escapeHtml(pod)}')"
+                                                    title="Down: gong-module-run down --image-names ${escapeHtml(pod)} --remote">⬇️</button>
+                                            ${isIntercepted
+                                                ? `<button class="module-action-btn leave"
+                                                          onclick="event.stopPropagation(); leaveModuleFromDrawer('${escapeHtml(pod)}')"
+                                                          title="Leave intercept">❌</button>`
+                                                : `<button class="module-action-btn intercept"
+                                                          onclick="event.stopPropagation(); interceptModuleFromDrawer('${escapeHtml(pod)}')"
+                                                          title="Intercept">🔌</button>`
+                                            }
+                                            <button class="module-action-btn branch"
+                                                    onclick="event.stopPropagation(); openBranchInputModal('${escapeHtml(pod)}', 'module')"
+                                                    title="Run from branch">🌿</button>
+                                            <button class="module-action-btn"
+                                                    onclick="event.stopPropagation(); openLogViewer('${escapeHtml(pod)}')"
+                                                    title="View logs">📋</button>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            const visibleGroupCount = groupNames.filter(g => {
+                const pods = groups[g];
+                return searchTerm ? pods.some(p => p.toLowerCase().includes(searchTerm) || g.toLowerCase().includes(searchTerm)) : true;
+            }).length;
+            statsDiv.innerHTML = searchTerm
+                ? `Found <strong>${totalModules}</strong> modules in <strong>${visibleGroupCount}</strong> group${visibleGroupCount !== 1 ? 's' : ''}`
+                : `<strong>${visibleGroupCount}</strong> custom group${visibleGroupCount !== 1 ? 's' : ''} • <strong>${totalModules}</strong> module${totalModules !== 1 ? 's' : ''}`;
+
+            content.innerHTML = html;
         }
 
         function copyToClipboard(text) {
@@ -3248,7 +3670,7 @@
             const input = document.getElementById('branchNameInput');
 
             // Set target description
-            const typeLabel = type === 'module' ? 'Module' : 'Group';
+            const typeLabel = type === 'module' ? 'Module' : type === 'subsystem' ? 'Subsystem' : 'Group';
             targetDesc.textContent = `${typeLabel}: ${target}`;
 
             // Clear and focus input
@@ -3311,6 +3733,9 @@
                 command = `gong-module-run up --image-names ${target} --branch-name ${branchName} --remote`;
             } else if (type === 'group') {
                 command = `gong-module-run up --group-names ${target} --branch-name ${branchName} --remote`;
+            } else if (type === 'subsystem') {
+                const modules = (allSubsystemsData && allSubsystemsData[target]) || [];
+                command = `gong-module-run up --image-names ${modules.join(' ')} --branch-name ${branchName} --remote`;
             }
 
             // Execute command
@@ -3328,6 +3753,12 @@
         document.getElementById('branchNameInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 runFromBranch();
+            }
+        });
+
+        document.getElementById('createGroupNameInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                confirmCreateGroup();
             }
         });
 
@@ -3368,6 +3799,8 @@
                 loadGroups();
             } else if (currentView === 'subsystems') {
                 loadSubsystems();
+            } else if (currentView === 'mygroups') {
+                renderMyGroups();
             } else {
                 loadPods();
             }
@@ -3540,6 +3973,197 @@
 
         // ── End Log Viewer ───────────────────────────────────────────────────
 
+        // ── Pod Watch ────────────────────────────────────────────────────────
+
+        function openPodWatchModal() {
+            podWatchLineCount = 0;
+            podWatchPaused = false;
+            document.getElementById('podWatchOutput').innerHTML = '';
+            document.getElementById('podWatchLineCount').textContent = '0 lines';
+            document.getElementById('podWatchStatus').textContent = '';
+            document.getElementById('podWatchStatus').className = 'log-status-indicator';
+            podWatchOpen = true;
+            document.getElementById('podWatchModal').classList.add('active');
+            // Re-render to update Watch button active state
+            if (cachedPodsData) {
+                const searchTerm = document.getElementById('groupsSearch').value.toLowerCase().trim();
+                renderPods(cachedPodsData, searchTerm);
+            }
+            startPodWatch();
+        }
+
+        function closePodWatchModal() {
+            stopPodWatch();
+            document.getElementById('podWatchModal').classList.remove('active');
+            podWatchOpen = false;
+            podWatchPaused = false;
+            // Re-render to update Watch button active state
+            if (cachedPodsData) {
+                const searchTerm = document.getElementById('groupsSearch').value.toLowerCase().trim();
+                renderPods(cachedPodsData, searchTerm);
+            }
+        }
+
+        function stopPodWatch() {
+            if (podWatchReader) {
+                podWatchReader.cancel();
+                podWatchReader = null;
+            }
+            const status = document.getElementById('podWatchStatus');
+            status.textContent = 'Stopped';
+            status.className = 'log-status-indicator';
+        }
+
+        function clearPodWatch() {
+            document.getElementById('podWatchOutput').innerHTML = '';
+            podWatchLineCount = 0;
+            document.getElementById('podWatchLineCount').textContent = '0 lines';
+        }
+
+        async function startPodWatch() {
+            if (podWatchReader) {
+                podWatchReader.cancel();
+                podWatchReader = null;
+            }
+            const status = document.getElementById('podWatchStatus');
+            status.textContent = 'Streaming';
+            status.className = 'log-status-indicator streaming';
+
+            let response;
+            try {
+                response = await fetch('/run_command_stream', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({command: 'kubectl get pods -w'})
+                });
+            } catch (e) {
+                status.textContent = 'Error';
+                status.className = 'log-status-indicator';
+                return;
+            }
+
+            if (!response.ok) {
+                status.textContent = 'Error';
+                status.className = 'log-status-indicator';
+                return;
+            }
+
+            const reader = response.body.getReader();
+            podWatchReader = reader;
+            const decoder = new TextDecoder();
+            let buffer = '';
+
+            while (true) {
+                let done, value;
+                try {
+                    ({done, value} = await reader.read());
+                } catch (e) {
+                    break;
+                }
+                if (done) break;
+
+                buffer += decoder.decode(value, {stream: true});
+                const lines = buffer.split('\n');
+                buffer = lines.pop(); // keep incomplete line
+
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const data = line.substring(6);
+                        if (data.startsWith('[COMPLETE:')) {
+                            status.textContent = 'Done';
+                            status.className = 'log-status-indicator';
+                            podWatchReader = null;
+                            return;
+                        }
+                        if (data.trim()) appendPodWatchLine(data);
+                    }
+                }
+            }
+            if (podWatchReader) {
+                status.textContent = 'Done';
+                status.className = 'log-status-indicator';
+                podWatchReader = null;
+            }
+        }
+
+        function appendPodWatchLine(text) {
+            const output = document.getElementById('podWatchOutput');
+            const div = document.createElement('div');
+            div.className = 'log-line';
+
+            const parts = text.trim().split(/\s+/);
+            // Header line or too few columns — render unstyled
+            if (parts.length < 3 || parts[0] === 'NAME') {
+                div.textContent = text;
+            } else {
+                const name   = parts[0];
+                const ready  = parts[1];
+                const status = parts[2];
+                const rest   = parts.slice(3).join('  ');
+
+                let cls;
+                if (/Error|CrashLoop|OOMKilled|ImagePull|ErrImage|Evicted/i.test(status)) {
+                    cls = 'pod-watch-error';
+                } else if (/Terminating/i.test(status)) {
+                    cls = 'pod-watch-terminating';
+                } else if (/^Running$/i.test(status)) {
+                    const [readyNum, readyTotal] = ready.split('/');
+                    cls = (readyNum === readyTotal) ? 'pod-watch-running' : 'pod-watch-creating';
+                } else {
+                    cls = 'pod-watch-creating'; // Pending, ContainerCreating, Init:*
+                }
+
+                // Build the line with colored ready + status columns
+                div.innerHTML =
+                    escapeHtml(name.padEnd(60)) +
+                    `<span class="${cls}">${escapeHtml(ready.padEnd(8))}${escapeHtml(status.padEnd(24))}</span>` +
+                    escapeHtml(rest);
+            }
+
+            if (podWatchPaused) {
+                const savedTop = output.scrollTop;
+                output.appendChild(div);
+                output.scrollTop = savedTop;
+            } else {
+                output.appendChild(div);
+                output.scrollTop = output.scrollHeight;
+            }
+            podWatchLineCount++;
+            document.getElementById('podWatchLineCount').textContent =
+                podWatchLineCount + ' line' + (podWatchLineCount !== 1 ? 's' : '');
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }
+
+        // Auto-pause Pod Watch on manual scroll / Escape / backdrop — wired after DOM ready
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('podWatchOutput').addEventListener('scroll', () => {
+                const output = document.getElementById('podWatchOutput');
+                const atBottom = output.scrollHeight - output.scrollTop - output.clientHeight < 50;
+                if (!atBottom && !podWatchPaused) {
+                    podWatchPaused = true;
+                } else if (atBottom && podWatchPaused) {
+                    podWatchPaused = false;
+                }
+            });
+
+            document.getElementById('podWatchModal').addEventListener('click', (e) => {
+                if (e.target.id === 'podWatchModal') {
+                    closePodWatchModal();
+                }
+            });
+        });
+
+        // Close Pod Watch with Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && podWatchOpen) {
+                closePodWatchModal();
+            }
+        });
+        // ── End Pod Watch ─────────────────────────────────────────────────────
+
     </script>
 
     <div id="logViewerModal" class="log-viewer-modal">
@@ -3559,6 +4183,25 @@
             <div class="log-viewer-footer">
                 <span id="logLineCount">0 lines</span>
                 <span class="log-hint">Select text to copy • Scroll up to pause</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="podWatchModal" class="log-viewer-modal">
+        <div id="podWatchContainer" class="log-viewer-container">
+            <div class="log-viewer-header">
+                <span style="color:#cdd6f4;font-family:'SF Mono','Courier New',monospace;font-size:13px;font-weight:600">👁 Pod Watch — kubectl get pods -w</span>
+                <div class="log-viewer-controls">
+                    <span id="podWatchStatus" class="log-status-indicator"></span>
+                    <button class="log-ctrl-btn" id="podWatchStopBtn" onclick="stopPodWatch()">&#9632; Stop</button>
+                    <button class="log-ctrl-btn" onclick="clearPodWatch()">Clear</button>
+                    <button class="log-ctrl-btn log-close-btn" onclick="closePodWatchModal()">&#10005;</button>
+                </div>
+            </div>
+            <div id="podWatchOutput"></div>
+            <div class="log-viewer-footer">
+                <span id="podWatchLineCount">0 lines</span>
+                <span class="log-hint">Scroll up to pause &bull; Colors: 🟡 starting &nbsp; 🟢 ready &nbsp; 🔴 error &nbsp; ⚫ terminating</span>
             </div>
         </div>
     </div>
