@@ -19,3 +19,6 @@ env/
 
 # Claude Code local config
 .claude/
+
+# User data — not shared
+custom_groups.json

@@ -621,6 +621,35 @@ def get_yaml_subsystems():
         return jsonify({'error': f'Error reading file: {str(e)}'}), 500
 
 
+import json
+
+CUSTOM_GROUPS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'custom_groups.json')
+
+
+@app.route('/get_custom_groups', methods=['GET'])
+def get_custom_groups():
+    """Load custom pod groups from disk"""
+    if not os.path.exists(CUSTOM_GROUPS_FILE):
+        return jsonify({})
+    try:
+        with open(CUSTOM_GROUPS_FILE, 'r') as f:
+            return jsonify(json.load(f))
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/save_custom_groups', methods=['POST'])
+def save_custom_groups():
+    """Persist custom pod groups to disk"""
+    try:
+        groups = request.json
+        with open(CUSTOM_GROUPS_FILE, 'w') as f:
+            json.dump(groups, f, indent=2)
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 def open_browser():
     """Open browser after a short delay to ensure server is ready"""
     import time

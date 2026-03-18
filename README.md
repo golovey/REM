@@ -59,12 +59,25 @@ Same module list, organized by subsystem instead of group.
 - Same hover actions as Groups
 - Click a subsystem name to copy it to clipboard
 
+#### My Groups
+Saved custom pod selections — your personal shortlist of modules that persist across sessions.
+
+- Create a group: switch to **🟢 Live Pods**, click **☑️ Select**, pick pods, then click **⭐ Create Group**
+- Groups are saved to `custom_groups.json` next to the app — they survive browser cache clears
+- **⬆️ Up** / **⬇️ Down** buttons on the group header run all modules in one command
+- Click **➕** on the group header to add a pod/module — autocomplete shows currently running pods not already in the group; type any name and press Enter
+- Hover a pod row and click **✕** to remove that pod from the group
+- Individual pod hover actions (Up · Down · Intercept · Branch · Logs) work the same as in Live Pods
+- Taking a pod down does **not** remove it from the group — the group stores module names, not pod instances
+- Click 🗑️ to delete the entire group
+
 #### Running Pods
 Live view of pods currently running in your active kubectl namespace.
 
 - Grouped by subsystem
 - Refreshes on demand — click the refresh icon or switch to the tab
 - Hover a pod to reveal quick action buttons: **⬆️ Up** · **⬇️ Down** · **🔌 Intercept** · **🌿 Branch** · **📋 Logs**
+- Click **☑️ Select** to enter select mode — check pods and click **⭐ Create Group** to save them as a custom group
 - Click **👁 Watch** to open a live `kubectl get pods -w` stream with color-coded pod status (yellow = starting, green = ready, red = error, gray = terminating)
 
 #### Pod Log Viewer
@@ -72,13 +85,15 @@ Click the **📋** button on any running pod to open a full-screen live log stre
 
 | Action | Result |
 |--------|--------|
-| Click 📋 on a pod | Opens log viewer, streams last 300 lines + live tail |
+| Click 📋 on a pod | Opens log viewer, streams last 300 lines by default |
+| **Last 300 / 1K / 5K / 10K / All lines** dropdown | Re-streams with the selected number of lines (All lines = from the very beginning) |
 | Scroll up | Auto-pauses scrolling (yellow border = paused) |
 | Scroll to bottom | Auto-resumes |
 | Click ⏸ Pause | Locks scroll; new lines still append |
 | Click ▶ Resume | Scrolls to bottom and re-enables auto-scroll |
 | Select text + Ctrl+C | Normal browser copy (text is selectable) |
 | Click **Copy All** | Copies entire log contents to clipboard |
+| Click **↺ Restart stream** button | Re-opens the stream after the pod restarts or the stream drops |
 | Press **Esc** or click **✕** | Closes the log viewer |
 
 The viewer automatically picks the main app container, skipping sidecars like `linkerd-proxy`.

@@ -1530,6 +1530,22 @@
             transform: none;
         }
 
+        .log-tail-select {
+            padding: 5px 8px;
+            background: #313244;
+            color: #cdd6f4;
+            border: 1px solid #45475a;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .log-tail-select:hover {
+            background: #45475a;
+        }
+
         .log-close-btn {
             border-color: #f38ba8;
             color: #f38ba8;
@@ -1681,7 +1697,7 @@
                 <button onclick="runQuickCommand('gong-module-run remote --refresh-modules')"
                         title="gong-module-run remote --refresh-modules">Get Latest</button>
                 <button onclick="showPodsStatus()"
-                        title="kubectl get pods — show image (last segment) and status">Pod Version</button>
+                        title="kubectl get pods — shows each pod's deployed image version and current status">Pod Version</button>
             </div>
         </div>
 
@@ -1886,6 +1902,12 @@
             <div class="shortcuts-section">
                 <h3>Log Viewer (📋 on Running Pods)</h3>
                 <div class="shortcut-item">
+                    <span class="shortcut-description">Change lines shown (re-streams immediately)</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">Lines dropdown</span>
+                    </div>
+                </div>
+                <div class="shortcut-item">
                     <span class="shortcut-description">Pause / resume auto-scroll</span>
                     <div class="shortcut-keys">
                         <span class="shortcut-key">Scroll up</span>
@@ -1908,6 +1930,42 @@
                     <span class="shortcut-description">Close log viewer</span>
                     <div class="shortcut-keys">
                         <span class="shortcut-key">Esc</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="shortcuts-section">
+                <h3>My Groups (⭐ tab)</h3>
+                <div class="shortcut-item">
+                    <span class="shortcut-description">Create a group from selected pods</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">☑️ Select</span>
+                        <span class="shortcut-key">⭐ Create Group</span>
+                    </div>
+                </div>
+                <div class="shortcut-item">
+                    <span class="shortcut-description">Add a pod to the group</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">➕ button</span>
+                        <span class="shortcut-key">Enter to confirm</span>
+                    </div>
+                </div>
+                <div class="shortcut-item">
+                    <span class="shortcut-description">Remove a pod from the group</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">✕ on pod row</span>
+                    </div>
+                </div>
+                <div class="shortcut-item">
+                    <span class="shortcut-description">Run all modules in a group</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">⬆️ Up</span>
+                    </div>
+                </div>
+                <div class="shortcut-item">
+                    <span class="shortcut-description">Delete entire group</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">🗑️</span>
                     </div>
                 </div>
             </div>
@@ -2653,7 +2711,7 @@
             } else if (currentView === 'mygroups') {
                 renderMyGroups();
             } else {
-                loadPods();
+                loadPods(true);
             }
         }
 
@@ -2968,7 +3026,7 @@
                             ${allSelected ? '☐ None' : '☑ All'}
                         </button>` : ''}
                         <button class="select-mode-btn ${selectModeActive ? 'active' : ''}" onclick="toggleSelectMode()" title="Select pods to create a custom group">
-                            ${selectModeActive ? '✅ Selecting...' : '☑️ Select'}
+                            ${selectModeActive ? `✅ Selecting${selectedPods.size > 0 ? ` (${selectedPods.size})` : '...'}` : '☑️ Select'}
                         </button>
                         <button class="select-mode-btn ${podWatchOpen ? 'active' : ''}" onclick="openPodWatchModal()" title="Watch pods startup in real time">
                             👁 Watch
@@ -3235,14 +3293,14 @@
         async function runSubsystemUp(subsystemName) {
             const modules = (allSubsystemsData && allSubsystemsData[subsystemName]) || [];
             if (modules.length === 0) return;
-            const command = `gong-module-run up --image-names ${modules.join(' ')} --remote`;
+            const command = `gong-module-run up --image-names ${modules.join(',')} --remote`;
             await executeCommand(command);
         }
 
         async function runSubsystemDown(subsystemName) {
             const modules = (allSubsystemsData && allSubsystemsData[subsystemName]) || [];
             if (modules.length === 0) return;
-            const command = `gong-module-run down --image-names ${modules.join(' ')} --remote`;
+            const command = `gong-module-run down --image-names ${modules.join(',')} --remote`;
             await executeCommand(command);
         }
 
@@ -3265,12 +3323,30 @@
         let podWatchPaused = false;
         let podWatchLineCount = 0;
 
+        let addPodTargetGroup = null;
+
         function getCustomGroups() {
             return JSON.parse(localStorage.getItem('customGroups') || '{}');
         }
 
         function saveCustomGroups(groups) {
             localStorage.setItem('customGroups', JSON.stringify(groups));
+            fetch('/save_custom_groups', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(groups)
+            }).catch(() => {}); // fire-and-forget; localStorage is the fallback
+        }
+
+        async function loadCustomGroupsFromDisk() {
+            try {
+                const resp = await fetch('/get_custom_groups');
+                if (!resp.ok) return;
+                const groups = await resp.json();
+                if (groups && typeof groups === 'object' && !groups.error) {
+                    localStorage.setItem('customGroups', JSON.stringify(groups));
+                }
+            } catch (e) {}
         }
 
         function toggleSelectMode() {
@@ -3355,11 +3431,46 @@
             setStatus(`Group "${name}" deleted`);
         }
 
+        function removePodFromGroup(groupName, podName) {
+            const groups = getCustomGroups();
+            groups[groupName] = groups[groupName].filter(p => p !== podName);
+            saveCustomGroups(groups);
+            renderMyGroups();
+        }
+
+        function openAddPodPicker(groupName) {
+            addPodTargetGroup = groupName;
+            renderMyGroups();
+            setTimeout(() => {
+                const input = document.getElementById('addPodInput');
+                if (input) input.focus();
+            }, 30);
+        }
+
+        function cancelAddPod() {
+            addPodTargetGroup = null;
+            renderMyGroups();
+        }
+
+        function confirmAddPod(groupName) {
+            const input = document.getElementById('addPodInput');
+            if (!input) return;
+            const podName = input.value.trim();
+            if (!podName) { cancelAddPod(); return; }
+            const groups = getCustomGroups();
+            if (!groups[groupName].includes(podName)) {
+                groups[groupName].push(podName);
+                saveCustomGroups(groups);
+            }
+            addPodTargetGroup = null;
+            renderMyGroups();
+        }
+
         async function runCustomGroupUp(groupName) {
             const groups = getCustomGroups();
             const pods = groups[groupName] || [];
             if (pods.length === 0) return;
-            const command = `gong-module-run up --image-names ${pods.join(' ')} --remote`;
+            const command = `gong-module-run up --image-names ${pods.join(',')} --remote`;
             await executeCommand(command);
         }
 
@@ -3367,7 +3478,7 @@
             const groups = getCustomGroups();
             const pods = groups[groupName] || [];
             if (pods.length === 0) return;
-            const command = `gong-module-run down --image-names ${pods.join(' ')} --remote`;
+            const command = `gong-module-run down --image-names ${pods.join(',')} --remote`;
             await executeCommand(command);
         }
 
@@ -3408,29 +3519,60 @@
                 const visible = searchTerm
                     ? pods.filter(p => p.toLowerCase().includes(searchTerm) || groupName.toLowerCase().includes(searchTerm))
                     : pods;
-                if (visible.length === 0) return;
+                if (visible.length === 0 && addPodTargetGroup !== groupName && pods.length > 0) return;
                 totalModules += visible.length;
 
+                // pods available to add: running pods not already in this group
+                const allRunning = cachedPodsData ? Object.values(cachedPodsData).flat() : [];
+                const addablePods = allRunning.filter(p => !pods.includes(p));
+                const safeGroup = escapeHtml(groupName);
+
                 html += `
-                    <div class="group-section" data-group-name="${escapeHtml(groupName)}">
+                    <div class="group-section" data-group-name="${safeGroup}">
                         <div class="group-title">
-                            <span class="group-name" title="${escapeHtml(groupName)}">
-                                ⭐ ${escapeHtml(groupName)} (${visible.length} module${visible.length !== 1 ? 's' : ''})
+                            <span class="group-name" title="${safeGroup}">
+                                ⭐ ${safeGroup} (${visible.length} module${visible.length !== 1 ? 's' : ''})
                             </span>
                             <div class="group-actions">
                                 <button class="group-action-btn up-btn"
-                                        onclick="event.stopPropagation(); runCustomGroupUp('${escapeHtml(groupName)}')"
+                                        onclick="event.stopPropagation(); runCustomGroupUp('${safeGroup}')"
                                         title="Up all">⬆️ Up</button>
                                 <button class="group-action-btn down-btn"
-                                        onclick="event.stopPropagation(); runCustomGroupDown('${escapeHtml(groupName)}')"
+                                        onclick="event.stopPropagation(); runCustomGroupDown('${safeGroup}')"
                                         title="Down all">⬇️ Down</button>
                                 <button class="group-action-btn"
+                                        onclick="event.stopPropagation(); openAddPodPicker('${safeGroup}')"
+                                        title="Add pod to group">➕</button>
+                                <button class="group-action-btn"
                                         style="color:#ea4335;"
-                                        onclick="event.stopPropagation(); deleteCustomGroup('${escapeHtml(groupName)}')"
+                                        onclick="event.stopPropagation(); deleteCustomGroup('${safeGroup}')"
                                         title="Delete this group">🗑️</button>
                             </div>
                         </div>
                         <div class="modules-list">
+                            ${addPodTargetGroup === groupName ? `
+                                <div class="module-item" style="background:#f0f4ff;gap:6px;">
+                                    <input id="addPodInput"
+                                           list="addPodList"
+                                           placeholder="Pod / module name..."
+                                           style="flex:1;border:1.5px solid #1a73e8;border-radius:4px;padding:3px 8px;font-size:12px;outline:none;"
+                                           onkeydown="if(event.key==='Enter'){event.preventDefault();confirmAddPod('${safeGroup}');}else if(event.key==='Escape'){cancelAddPod();}" />
+                                    <datalist id="addPodList">
+                                        ${addablePods.map(p => `<option value="${escapeHtml(p)}">`).join('')}
+                                    </datalist>
+                                    <div class="module-actions" style="opacity:1;">
+                                        <button class="module-action-btn" style="color:#1a73e8;"
+                                                onclick="event.stopPropagation(); confirmAddPod('${safeGroup}')"
+                                                title="Add">✓</button>
+                                        <button class="module-action-btn" style="color:#ea4335;"
+                                                onclick="event.stopPropagation(); cancelAddPod()"
+                                                title="Cancel">✕</button>
+                                    </div>
+                                </div>` : ''}
+                            ${pods.length === 0 && addPodTargetGroup !== groupName ? `
+                                <div style="padding:8px 12px;color:#6c7086;font-size:12px;font-style:italic;">
+                                    Group is empty — click ➕ to add a pod or 🗑️ to delete
+                                </div>` : ''}
                             ${visible.map(pod => {
                                 const isIntercepted = interceptedModules.has(pod);
                                 const interceptedClass = isIntercepted ? 'intercepted' : '';
@@ -3461,6 +3603,9 @@
                                             <button class="module-action-btn"
                                                     onclick="event.stopPropagation(); openLogViewer('${escapeHtml(pod)}')"
                                                     title="View logs">📋</button>
+                                            <button class="module-action-btn" style="color:#ea4335;"
+                                                    onclick="event.stopPropagation(); removePodFromGroup('${safeGroup}', '${escapeHtml(pod)}')"
+                                                    title="Remove from group">✕</button>
                                         </div>
                                     </div>
                                 `;
@@ -3735,7 +3880,7 @@
                 command = `gong-module-run up --group-names ${target} --branch-name ${branchName} --remote`;
             } else if (type === 'subsystem') {
                 const modules = (allSubsystemsData && allSubsystemsData[target]) || [];
-                command = `gong-module-run up --image-names ${modules.join(' ')} --branch-name ${branchName} --remote`;
+                command = `gong-module-run up --image-names ${modules.join(',')} --branch-name ${branchName} --remote`;
             }
 
             // Execute command
@@ -3790,7 +3935,10 @@
         })();
 
         // Load appropriate view and show intercept banner on page load
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Sync custom groups from disk before rendering anything
+            await loadCustomGroupsFromDisk();
+
             // Initialize view UI
             updateViewUI();
 
@@ -3814,8 +3962,11 @@
         let logLineCount = 0;
         let logAutoScrollSuspended = false;
         let logMarkElement = null;
+        let logTailLines = 300;
+        let logCurrentPod = '';
 
         function openLogViewer(podName) {
+            logCurrentPod = podName;
             document.getElementById('logViewerTitle').textContent = podName;
             document.getElementById('logOutput').innerHTML = '';
             document.getElementById('logLineCount').textContent = '0 lines';
@@ -3827,7 +3978,9 @@
             logPaused = false;
             logAutoScrollSuspended = false;
             logMarkElement = null;
+            logTailLines = 300;
             document.getElementById('logJumpBtn').style.display = 'none';
+            document.getElementById('logTailSelect').value = '300';
             logViewerOpen = true;
             document.getElementById('logViewerModal').classList.add('active');
             startLogStream(podName);
@@ -3842,7 +3995,7 @@
             status.textContent = 'Streaming';
             status.className = 'log-status-indicator streaming';
 
-            logEventSource = new EventSource('/stream_pod_logs?pod=' + encodeURIComponent(podName) + '&tail=300');
+            logEventSource = new EventSource('/stream_pod_logs?pod=' + encodeURIComponent(podName) + '&tail=' + logTailLines);
 
             logEventSource.onmessage = (e) => {
                 const data = e.data;
@@ -3851,6 +4004,11 @@
                     status.className = 'log-status-indicator';
                     logEventSource.close();
                     logEventSource = null;
+                    const restartDiv = document.createElement('div');
+                    restartDiv.style.cssText = 'text-align:center;padding:12px;border-top:1px solid #313244;margin-top:6px;';
+                    restartDiv.innerHTML = '<span style="color:#6c7086;font-size:12px;margin-right:10px;">Stream ended</span><button class="log-ctrl-btn" onclick="startLogStream(logCurrentPod)">↺ Restart stream</button>';
+                    document.getElementById('logOutput').appendChild(restartDiv);
+                    if (!logPaused) document.getElementById('logOutput').scrollTop = document.getElementById('logOutput').scrollHeight;
                 } else if (data.startsWith('[ERROR]')) {
                     appendLogLine(data.substring(7), 'log-error');
                     status.textContent = 'Error';
@@ -3915,6 +4073,15 @@
             document.getElementById('logViewerModal').classList.remove('active');
             logViewerOpen = false;
             logPaused = false;
+        }
+
+        function setLogTail(n) {
+            logTailLines = n;
+            document.getElementById('logOutput').innerHTML = '';
+            logLineCount = 0;
+            document.getElementById('logLineCount').textContent = '0 lines';
+            const podName = document.getElementById('logViewerTitle').textContent;
+            startLogStream(podName);
         }
 
         function copyAllLogs() {
@@ -4172,6 +4339,13 @@
                 <span id="logViewerTitle">Logs</span>
                 <div class="log-viewer-controls">
                     <span id="logViewerStatus" class="log-status-indicator"></span>
+                    <select id="logTailSelect" class="log-tail-select" onchange="setLogTail(parseInt(this.value))" title="Number of log lines to fetch">
+                        <option value="300"   selected>Last 300</option>
+                        <option value="1000"         >Last 1K</option>
+                        <option value="5000"         >Last 5K</option>
+                        <option value="10000"        >Last 10K</option>
+                        <option value="-1"           >All lines</option>
+                    </select>
                     <button id="logPauseBtn" class="log-ctrl-btn" onclick="toggleLogPause()">⏸ Pause</button>
                     <button id="logMarkBtn" class="log-ctrl-btn" onclick="insertLogMark()">📍 Mark</button>
                     <button id="logJumpBtn" class="log-ctrl-btn" style="display:none" onclick="jumpToMark()">↑ Mark</button>
