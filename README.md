@@ -37,7 +37,7 @@ Type any shell command in the input box and press **Enter** or click **Run**.
 
 | Button | Command | Description |
 |--------|---------|-------------|
-| Status\Connect | `gong-module-run remote --status` | Check remote connection status |
+| Status\Connect | `gong-module-run remote --status` | Check remote connection status; automatically opens Pod Watch if the environment is sleeping |
 | Get Latest | `gong-module-run remote --refresh-modules` | Pull latest module versions |
 | Refetch DB | `gong-module-run synthetic-data --synthetic-data-image-tag latest --remote` | Refresh the database |
 | FF and DB Refresh | `gong-module-run remote --init` | Refresh feature flags and database |

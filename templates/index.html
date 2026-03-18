@@ -1689,7 +1689,7 @@
             <h4>Quick Actions</h4>
             <div class="quick-actions">
                 <button onclick="runQuickCommand('gong-module-run remote --status')"
-                        title="gong-module-run remote --status (auto-parses on success)">Status\Connect</button>
+                        title="gong-module-run remote --status (auto-parses on success; auto-opens Pod Watch if environment is sleeping)">Status\Connect</button>
                 <button onclick="confirmRefetchDB()"
                         title="gong-module-run synthetic-data --synthetic-data-image-tag latest --remote">Refetch DB</button>
                 <button onclick="runQuickCommand('gong-module-run remote --init')"
@@ -1972,6 +1972,12 @@
 
             <div class="shortcuts-section">
                 <h3>Pod Watch (👁 Watch in Running Pods)</h3>
+                <div class="shortcut-item">
+                    <span class="shortcut-description">Auto-opens when Status\Connect detects a sleeping environment</span>
+                    <div class="shortcut-keys">
+                        <span class="shortcut-key">auto</span>
+                    </div>
+                </div>
                 <div class="shortcut-item">
                     <span class="shortcut-description">Pause / resume auto-scroll</span>
                     <div class="shortcut-keys">
@@ -2476,6 +2482,14 @@
                     }
                 }
 
+                // Auto-open pod watch if environment is sleeping
+                if (command.includes('gong-module-run remote --status')) {
+                    const allOutput = document.getElementById('terminal').textContent;
+                    if (allOutput.includes('sleeping') && !podWatchOpen) {
+                        openPodWatchModal();
+                    }
+                }
+
             } catch (error) {
                 // Finalise any pending partial span
                 const errPartial = document.getElementById('partial-line');
@@ -2700,19 +2714,20 @@
             }
         }
 
-        function switchTab(tab) {
+        async function switchTab(tab) {
             currentView = tab;
             localStorage.setItem('viewMode', currentView);
             updateViewUI();
             if (currentView === 'groups') {
-                loadGroups();
+                await loadGroups();
             } else if (currentView === 'subsystems') {
-                loadSubsystems();
+                await loadSubsystems();
             } else if (currentView === 'mygroups') {
-                renderMyGroups();
+                await renderMyGroups();
             } else {
-                loadPods(true);
+                await loadPods(true);
             }
+            filterGroups();
         }
 
         function updateViewUI() {
