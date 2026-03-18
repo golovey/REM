@@ -58,11 +58,12 @@ Same module list, organized by subsystem instead of group.
 
 - Same hover actions as Groups
 - Click a subsystem name to copy it to clipboard
+- Use the search box to filter by subsystem name or module name — searching "engage" shows the full `gong-engage` subsystem even if individual module names don't contain the term
 
 #### My Groups
 Saved custom pod selections — your personal shortlist of modules that persist across sessions.
 
-- Create a group: switch to **🟢 Live Pods**, click **☑️ Select**, pick pods, then click **⭐ Create Group**
+- Create a group: switch to **🟢 Live Pods**, click **☑️ Create**, pick pods, then click **⭐ Create Group**
 - Groups are saved to `custom_groups.json` next to the app — they survive browser cache clears
 - **⬆️ Up** / **⬇️ Down** buttons on the group header run all modules in one command
 - Click **➕** on the group header to add a pod/module — autocomplete shows currently running pods not already in the group; type any name and press Enter
@@ -77,8 +78,8 @@ Live view of pods currently running in your active kubectl namespace.
 - Grouped by subsystem
 - Refreshes on demand — click the refresh icon or switch to the tab
 - Hover a pod to reveal quick action buttons: **⬆️ Up** · **⬇️ Down** · **🔌 Intercept** · **🌿 Branch** · **📋 Logs**
-- Click **☑️ Select** to enter select mode — check pods and click **⭐ Create Group** to save them as a custom group
-- Click **👁 Watch** to open a live `kubectl get pods -w` stream with color-coded pod status (yellow = starting, green = ready, red = error, gray = terminating)
+- Click **☑️ Create** to enter select mode — check pods and click **⭐ Create Group** to save them as a custom group
+- Click **👁 Watch** to open a live `kubectl get pods -w` stream with color-coded pod status (yellow = starting, green = ready, red = error, gray = terminating); each pod occupies a single row that updates in place as its status changes
 
 #### Pod Log Viewer
 Click the **📋** button on any running pod to open a full-screen live log stream.

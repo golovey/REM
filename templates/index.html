@@ -1939,7 +1939,7 @@
                 <div class="shortcut-item">
                     <span class="shortcut-description">Create a group from selected pods</span>
                     <div class="shortcut-keys">
-                        <span class="shortcut-key">☑️ Select</span>
+                        <span class="shortcut-key">☑️ Create</span>
                         <span class="shortcut-key">⭐ Create Group</span>
                     </div>
                 </div>
@@ -2844,7 +2844,8 @@
 
             subsystemNames.forEach(subsystemName => {
                 const modules = subsystems[subsystemName];
-                const visibleModules = highlightModules.length > 0
+                const subsystemNameMatches = searchTerm && subsystemName.toLowerCase().includes(searchTerm.toLowerCase());
+                const visibleModules = (highlightModules.length > 0 && !subsystemNameMatches)
                     ? modules.filter(m => highlightModules.includes(m))
                     : modules;
 
@@ -3026,7 +3027,7 @@
                             ${allSelected ? '☐ None' : '☑ All'}
                         </button>` : ''}
                         <button class="select-mode-btn ${selectModeActive ? 'active' : ''}" onclick="toggleSelectMode()" title="Select pods to create a custom group">
-                            ${selectModeActive ? `✅ Selecting${selectedPods.size > 0 ? ` (${selectedPods.size})` : '...'}` : '☑️ Select'}
+                            ${selectModeActive ? `✅ Selecting${selectedPods.size > 0 ? ` (${selectedPods.size})` : '...'}` : '☑️ Create'}
                         </button>
                         <button class="select-mode-btn ${podWatchOpen ? 'active' : ''}" onclick="openPodWatchModal()" title="Watch pods startup in real time">
                             👁 Watch
@@ -3500,7 +3501,7 @@
                         <div style="font-size:28px;margin-bottom:8px;">⭐</div>
                         <strong>No custom groups yet</strong><br>
                         <span style="color:#80868b;">Switch to the <strong>🟢 Live Pods</strong> tab,
-                        click <strong>☑️ Select</strong>, pick pods, then click <strong>⭐ Create Group</strong>.</span>
+                        click <strong>☑️ Create</strong>, pick pods, then click <strong>⭐ Create Group</strong>.</span>
                     </div>`;
                 return;
             }
@@ -4255,49 +4256,61 @@
 
         function appendPodWatchLine(text) {
             const output = document.getElementById('podWatchOutput');
-            const div = document.createElement('div');
-            div.className = 'log-line';
 
             const parts = text.trim().split(/\s+/);
-            // Header line or too few columns — render unstyled
+            // Header line or too few columns — render unstyled, always append
             if (parts.length < 3 || parts[0] === 'NAME') {
+                const div = document.createElement('div');
+                div.className = 'log-line';
                 div.textContent = text;
-            } else {
-                const name   = parts[0];
-                const ready  = parts[1];
-                const status = parts[2];
-                const rest   = parts.slice(3).join('  ');
+                output.appendChild(div);
+                return;
+            }
 
-                let cls;
-                if (/Error|CrashLoop|OOMKilled|ImagePull|ErrImage|Evicted/i.test(status)) {
-                    cls = 'pod-watch-error';
-                } else if (/Terminating/i.test(status)) {
-                    cls = 'pod-watch-terminating';
-                } else if (/^Running$/i.test(status)) {
-                    const [readyNum, readyTotal] = ready.split('/');
-                    cls = (readyNum === readyTotal) ? 'pod-watch-running' : 'pod-watch-creating';
+            const name   = parts[0];
+            const ready  = parts[1];
+            const status = parts[2];
+            const rest   = parts.slice(3).join('  ');
+
+            let cls;
+            if (/Error|CrashLoop|OOMKilled|ImagePull|ErrImage|Evicted/i.test(status)) {
+                cls = 'pod-watch-error';
+            } else if (/Terminating/i.test(status)) {
+                cls = 'pod-watch-terminating';
+            } else if (/^Running$/i.test(status)) {
+                const [readyNum, readyTotal] = ready.split('/');
+                cls = (readyNum === readyTotal) ? 'pod-watch-running' : 'pod-watch-creating';
+            } else {
+                cls = 'pod-watch-creating'; // Pending, ContainerCreating, Init:*
+            }
+
+            const html =
+                escapeHtml(name.padEnd(60)) +
+                `<span class="${cls}">${escapeHtml(ready.padEnd(8))}${escapeHtml(status.padEnd(24))}</span>` +
+                escapeHtml(rest);
+
+            // Upsert: update existing row for this pod, or append a new one
+            const existing = output.querySelector(`[data-pod="${CSS.escape(name)}"]`);
+            if (existing) {
+                existing.innerHTML = html;
+            } else {
+                const div = document.createElement('div');
+                div.className = 'log-line';
+                div.dataset.pod = name;
+                div.innerHTML = html;
+
+                if (podWatchPaused) {
+                    const savedTop = output.scrollTop;
+                    output.appendChild(div);
+                    output.scrollTop = savedTop;
                 } else {
-                    cls = 'pod-watch-creating'; // Pending, ContainerCreating, Init:*
+                    output.appendChild(div);
+                    output.scrollTop = output.scrollHeight;
                 }
-
-                // Build the line with colored ready + status columns
-                div.innerHTML =
-                    escapeHtml(name.padEnd(60)) +
-                    `<span class="${cls}">${escapeHtml(ready.padEnd(8))}${escapeHtml(status.padEnd(24))}</span>` +
-                    escapeHtml(rest);
+                podWatchLineCount++;
+                document.getElementById('podWatchLineCount').textContent =
+                    podWatchLineCount + ' pod' + (podWatchLineCount !== 1 ? 's' : '');
             }
-
-            if (podWatchPaused) {
-                const savedTop = output.scrollTop;
-                output.appendChild(div);
-                output.scrollTop = savedTop;
-            } else {
-                output.appendChild(div);
-                output.scrollTop = output.scrollHeight;
-            }
-            podWatchLineCount++;
-            document.getElementById('podWatchLineCount').textContent =
-                podWatchLineCount + ' line' + (podWatchLineCount !== 1 ? 's' : '');
         }
 
         function escapeHtml(str) {
