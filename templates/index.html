@@ -2393,19 +2393,27 @@
                 // Read streaming response
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
+                let pendingLine = '';
 
                 while (true) {
                     const {done, value} = await reader.read();
 
                     if (done) break;
 
-                    // Decode chunk and process lines
-                    const chunk = decoder.decode(value, {stream: true});
+                    // Decode chunk and process lines; prepend any partial line from previous chunk
+                    const chunk = pendingLine + decoder.decode(value, {stream: true});
                     const lines = chunk.split('\n');
+                    // The last element may be an incomplete line — carry it forward
+                    pendingLine = lines.pop();
 
                     for (const line of lines) {
                         if (line.startsWith('data: ')) {
                             const data = line.substring(6);
+
+                            // Auto-open pod watch as soon as sleeping line is detected
+                            if (command.includes('gong-module-run remote --status') && data.includes('sleeping') && !podWatchOpen) {
+                                openPodWatchModal();
+                            }
 
                             // Check for completion signal
                             if (data.startsWith('[COMPLETE:')) {
@@ -2482,13 +2490,6 @@
                     }
                 }
 
-                // Auto-open pod watch if environment is sleeping
-                if (command.includes('gong-module-run remote --status')) {
-                    const allOutput = document.getElementById('terminal').textContent;
-                    if (allOutput.includes('sleeping') && !podWatchOpen) {
-                        openPodWatchModal();
-                    }
-                }
 
             } catch (error) {
                 // Finalise any pending partial span
