@@ -1688,8 +1688,10 @@
 
             <h4>Quick Actions</h4>
             <div class="quick-actions">
+                <button onclick="runQuickCommand('gong-module-run remote --connect')"
+                        title="gong-module-run remote --connect (auto-opens Pod Watch if environment is sleeping)">Connect</button>
                 <button onclick="runQuickCommand('gong-module-run remote --status')"
-                        title="gong-module-run remote --status (auto-parses on success; auto-opens Pod Watch if environment is sleeping)">Status\Connect</button>
+                        title="gong-module-run remote --status (auto-parses on success; auto-opens Pod Watch if environment is sleeping)">Status</button>
                 <button onclick="confirmRefetchDB()"
                         title="gong-module-run synthetic-data --synthetic-data-image-tag latest --remote">Refetch DB</button>
                 <button onclick="runQuickCommand('gong-module-run remote --init')"
@@ -1973,7 +1975,7 @@
             <div class="shortcuts-section">
                 <h3>Pod Watch (👁 Watch in Running Pods)</h3>
                 <div class="shortcut-item">
-                    <span class="shortcut-description">Auto-opens when Status\Connect detects a sleeping environment</span>
+                    <span class="shortcut-description">Auto-opens when Status or Connect detects a sleeping environment</span>
                     <div class="shortcut-keys">
                         <span class="shortcut-key">auto</span>
                     </div>
@@ -2411,7 +2413,7 @@
                             const data = line.substring(6);
 
                             // Auto-open pod watch as soon as sleeping line is detected
-                            if (command.includes('gong-module-run remote --status') && data.includes('sleeping') && !podWatchOpen) {
+                            if ((command.includes('gong-module-run remote --status') || command.includes('gong-module-run remote --connect')) && data.includes('sleeping') && !podWatchOpen) {
                                 openPodWatchModal();
                             }
 
