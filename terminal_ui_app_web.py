@@ -654,7 +654,7 @@ def open_browser():
     """Open browser after a short delay to ensure server is ready"""
     import time
     time.sleep(1.5)  # Wait for Flask server to start
-    webbrowser.open('http://localhost:5000')
+    webbrowser.open('http://localhost:47832')
 
 
 if __name__ == '__main__':
@@ -665,7 +665,7 @@ if __name__ == '__main__':
     print("Remote Environment Manager")
     print("=" * 60)
     print("\nStarting server...")
-    print("\n📱 Opening browser at http://localhost:5000")
+    print("\n📱 Opening browser at http://localhost:47832")
     print("\nPress Ctrl+C to stop the server")
     print("=" * 60 + "\n")
 
@@ -673,4 +673,4 @@ if __name__ == '__main__':
     if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
         threading.Thread(target=open_browser, daemon=True).start()
 
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=47832)

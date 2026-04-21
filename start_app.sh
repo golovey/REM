@@ -37,13 +37,13 @@ if ! $PYTHON -c "import yaml" 2>/dev/null; then
     echo ""
 fi
 
-# Check if port 5000 is already in use
-if lsof -Pi :5000 -sTCP:LISTEN -t >/dev/null 2>&1 ; then
+# Check if port 47832 is already in use
+if lsof -Pi :47832 -sTCP:LISTEN -t >/dev/null 2>&1 ; then
     echo "============================================================"
     echo "✅ App is already running!"
     echo "============================================================"
     echo ""
-    echo "Opening browser at: http://localhost:5000"
+    echo "Opening browser at: http://localhost:47832"
     echo ""
     echo "To stop the existing instance, find the terminal window"
     echo "where it's running and press Ctrl+C"
@@ -53,12 +53,12 @@ if lsof -Pi :5000 -sTCP:LISTEN -t >/dev/null 2>&1 ; then
     # Open browser to existing instance
     if command -v open >/dev/null 2>&1; then
         # macOS
-        open http://localhost:5000
+        open http://localhost:47832
     elif command -v xdg-open >/dev/null 2>&1; then
         # Linux
-        xdg-open http://localhost:5000
+        xdg-open http://localhost:47832
     else
-        echo "Please manually open: http://localhost:5000"
+        echo "Please manually open: http://localhost:47832"
     fi
 
     exit 0
@@ -70,7 +70,7 @@ echo "🚀 Starting Terminal UI Web App"
 echo "============================================================"
 echo ""
 echo "The app will open in your browser at:"
-echo "  http://localhost:5000"
+echo "  http://localhost:47832"
 echo ""
 echo "Press Ctrl+C to stop the server"
 echo "============================================================"
